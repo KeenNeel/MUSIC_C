@@ -980,58 +980,6 @@
   @keyframes njSpin { from { transform: rotateX(18deg) rotateY(0deg); } to { transform: rotateX(18deg) rotateY(360deg); } }
   @keyframes njSpinRev { from { transform: rotateX(0deg) rotateY(360deg) rotateZ(0deg); } to { transform: rotateX(360deg) rotateY(0deg) rotateZ(360deg); } }
 
-  /* [変更] VOICE FX（デジタルエフェクター風パネル） */
-  .fx-sel-label { color: #ddd; font-size: 11px; font-weight: 900; }
-  .fx-panel {
-    position: relative; border-radius: 8px; padding: 12px 16px 12px;
-    background: repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 3px), linear-gradient(to bottom, #3a3d42, #22252a 60%, #181a1d);
-    border: 1px solid #0c0c0c; box-shadow: inset 0 1px 1px rgba(255,255,255,0.25), inset 0 -2px 4px rgba(0,0,0,0.6), 0 4px 10px rgba(0,0,0,0.6);
-  }
-  .fx-rivet { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #eee, #888 55%, #333); box-shadow: 0 1px 1px rgba(0,0,0,0.8); }
-  .fx-rivet.tl { top: 5px; left: 5px; } .fx-rivet.tr { top: 5px; right: 5px; } .fx-rivet.bl { bottom: 5px; left: 5px; } .fx-rivet.br { bottom: 5px; right: 5px; }
-  .fx-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
-  .fx-brand { color: #f2f2f2; font-weight: 900; font-size: 15px; letter-spacing: 3px; font-style: italic; text-shadow: 0 1px 0 #000; }
-  .fx-model { color: #9aa0a8; font-size: 9px; font-weight: 900; letter-spacing: 1.5px; }
-  .fx-mon { margin-left: auto; color: #ddd; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 4px; cursor: pointer; }
-  .fx-mon input { accent-color: #ffb347; }
-  .fx-body { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
-  .fx-lcd {
-    flex: 1 1 240px; min-width: 220px; padding: 8px 10px; border-radius: 4px; font-family: 'Courier New', monospace; font-weight: 900;
-    background: linear-gradient(to bottom, #0f2a10, #0a1f0b); color: #7dff6a; text-shadow: 0 0 6px rgba(125,255,106,0.7);
-    border: 2px solid #050505; box-shadow: inset 0 0 12px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.08);
-  }
-  .fx-lcd-row { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; white-space: nowrap; overflow: hidden; }
-  .fx-lcd-row.l2 { font-size: 11px; margin-top: 4px; color: #b8ffae; text-overflow: ellipsis; display: block; }
-  .fx-knobs { display: flex; gap: 14px; }
-  .fx-knob { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 58px; position: relative; }
-  .fx-knob::before { /* 目盛りリング */
-    content: ''; position: absolute; top: -4px; left: 50%; width: 56px; height: 56px; margin-left: -28px; border-radius: 50%;
-    background: repeating-conic-gradient(from -135deg, rgba(255,255,255,0.45) 0 2deg, transparent 2deg 27deg);
-    -webkit-mask: radial-gradient(circle, transparent 0 24px, #000 25px 28px, transparent 28px); mask: radial-gradient(circle, transparent 0 24px, #000 25px 28px, transparent 28px);
-    clip-path: polygon(50% 50%, 0 100%, 0 0, 100% 0, 100% 100%);
-  }
-  .fx-dial {
-    width: 46px; height: 46px; border-radius: 50%; position: relative; cursor: ns-resize; touch-action: none;
-    background: radial-gradient(circle at 35% 28%, #7a7e85, #2a2d31 60%, #141517);
-    box-shadow: 0 3px 6px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.35), inset 0 -2px 3px rgba(0,0,0,0.6);
-    border: 1px solid #0b0b0b;
-  }
-  .fx-dial i { position: absolute; left: 50%; top: 4px; width: 3px; height: 14px; margin-left: -1.5px; border-radius: 2px; background: #ffb347; box-shadow: 0 0 5px #ffb347; }
-  .fx-knob.dim .fx-dial i { background: #666; box-shadow: none; }
-  .fx-klabel { color: #cfd3d8; font-size: 9px; font-weight: 900; letter-spacing: 1px; }
-  .fx-kval { color: #ffb347; font-size: 10px; font-family: 'Courier New', monospace; }
-  .fx-slots { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-  .fx-slot { display: flex; align-items: stretch; border-radius: 5px; overflow: hidden; border: 1px solid #0a0a0a; box-shadow: 0 2px 4px rgba(0,0,0,0.7); flex: 1 1 90px; }
-  .fx-power { width: 26px; border: none; cursor: pointer; background: linear-gradient(to bottom, #2c2f33, #17191b); position: relative; }
-  .fx-power::after { content: ''; position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: #3a1010; border: 1px solid #000; }
-  .fx-slot.on .fx-power::after { background: #ff3b3b; box-shadow: 0 0 8px #ff3b3b; }
-  .fx-name { flex: 1; border: none; cursor: pointer; padding: 7px 6px; font-weight: 900; font-size: 11px; letter-spacing: 1px; color: #d8dce0; background: linear-gradient(to bottom, #4a4e54, #2c2f33); border-left: 1px solid #111; }
-  .fx-slot.selected .fx-name { color: #111; background: linear-gradient(to bottom, #ffd27a, #e69a22); }
-  .fx-presets { display: flex; gap: 6px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
-  .fx-plabel { color: #9aa0a8; font-size: 9px; font-weight: 900; letter-spacing: 1.5px; margin-right: 4px; }
-  .fx-preset { padding: 4px 9px; border-radius: 3px; cursor: pointer; font-size: 10px; font-weight: 900; color: #cfd3d8; background: #1a1c1f; border: 1px solid #3b3f45; }
-  .fx-preset.active { color: #7dff6a; border-color: #4f9a44; box-shadow: 0 0 6px rgba(125,255,106,0.4); }
-
   /* [変更] 録音エリアの折りたたみ */
   .panel-collapsible > .area-label { right: 12px; cursor: pointer; user-select: none; }
   .panel-collapsible > .area-label::after { content: '　▲ たたむ'; font-size: 0.85em; opacity: 0.75; letter-spacing: 0; }
@@ -1311,47 +1259,6 @@
         <div class="seg" id="listen-mode"><button class="seg-btn active" data-v="mix">曲＋録音</button><button class="seg-btn" data-v="voice">録音のみ</button></div>
         <button class="btn" id="btn-take-save">💾 SAVE</button>
         <div class="seg" id="save-mode"><button class="seg-btn active" data-v="mix">曲とミックス</button><button class="seg-btn" data-v="voice">録音のみ</button></div>
-      </div>
-      <div class="rec-row"><!-- [変更] 声を原音で聞く／保存するか、エフェクト付きか -->
-        <span class="fx-sel-label">🎤 LISTEN の声</span>
-        <div class="seg" id="listen-fx"><button class="seg-btn" data-v="raw">原音</button><button class="seg-btn active" data-v="fx">FX</button></div>
-        <span class="fx-sel-label">💾 SAVE の声</span>
-        <div class="seg" id="save-fx"><button class="seg-btn" data-v="raw">原音</button><button class="seg-btn active" data-v="fx">FX</button></div>
-      </div>
-      <!-- [変更] VOICE FX（デジタルエフェクター） -->
-      <div class="fx-panel">
-        <div class="fx-rivet tl"></div><div class="fx-rivet tr"></div><div class="fx-rivet bl"></div><div class="fx-rivet br"></div>
-        <div class="fx-head">
-          <span class="fx-brand">VOICE FX</span><span class="fx-model">DSP-5 DIGITAL MULTI EFFECTOR</span>
-          <label class="fx-mon"><input type="checkbox" id="fx-monitor" checked> 🎧 モニターにFX</label>
-        </div>
-        <div class="fx-body">
-          <div class="fx-lcd">
-            <div class="fx-lcd-row"><span id="fx-lcd-1"></span><span id="fx-lcd-1b"></span></div>
-            <div class="fx-lcd-row l2" id="fx-lcd-2"></div>
-          </div>
-          <div class="fx-knobs">
-            <div class="fx-knob"><div class="fx-dial"><i></i></div><span class="fx-klabel"></span><b class="fx-kval"></b></div>
-            <div class="fx-knob"><div class="fx-dial"><i></i></div><span class="fx-klabel"></span><b class="fx-kval"></b></div>
-            <div class="fx-knob"><div class="fx-dial"><i></i></div><span class="fx-klabel"></span><b class="fx-kval"></b></div>
-          </div>
-        </div>
-        <div class="fx-slots">
-          <div class="fx-slot" data-fx="eq"><button class="fx-power" title=""></button><button class="fx-name">EQ</button></div>
-          <div class="fx-slot" data-fx="comp"><button class="fx-power" title=""></button><button class="fx-name">COMP</button></div>
-          <div class="fx-slot" data-fx="chorus"><button class="fx-power" title=""></button><button class="fx-name">CHORUS</button></div>
-          <div class="fx-slot" data-fx="echo"><button class="fx-power" title=""></button><button class="fx-name">ECHO</button></div>
-          <div class="fx-slot" data-fx="reverb"><button class="fx-power" title=""></button><button class="fx-name">REVERB</button></div>
-        </div>
-        <div class="fx-presets">
-          <span class="fx-plabel">PRESET</span>
-          <button class="fx-preset" data-preset="VOCAL ★">VOCAL ★</button>
-          <button class="fx-preset" data-preset="STUDIO">STUDIO</button>
-          <button class="fx-preset" data-preset="KARAOKE">KARAOKE</button>
-          <button class="fx-preset" data-preset="HALL">HALL</button>
-          <button class="fx-preset" data-preset="DOUBLE">DOUBLE</button>
-          <button class="fx-preset" data-preset="DRY">DRY</button>
-        </div>
       </div>
       <div class="rec-row mic-row">
         <!-- [変更] マイクレベル表示（その下に ずれ自動補正 → ヘッドホンモニター） -->
@@ -1903,60 +1810,20 @@
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }
 
-  // [変更] テープ一覧の読み込み：自動再試行（最大5回）＋前回データの即時表示＋失敗時の再読み込みボタン
-  const LIB_CACHE_KEY = 'cds_library_cache';
-  let libLoading = false;
-  function libMessage(html, color) {
-    document.getElementById('cassette-list').innerHTML = `<p style='color:${color}; position:relative; z-index:11; grid-column:1/-1;'>${html}</p>`;
-  }
-  function applyLibraryData(data) {
-    window.appData = data;
-    const sel = document.getElementById('genre-filter');
-    const prev = sel.value;
-    while (sel.options.length > 1) sel.remove(1); // ジャンルの重複登録を防ぐ
-    setupGenreFilter(data.songs);
-    if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
-    renderCassettes(data.songs, sel.value);
-  }
-  async function fetchLibraryOnce() {
-    // [変更] GAS は応答に20秒以上かかることがあるため、途中で打ち切らない（元と同じリクエスト内容に戻す）
-    const res = await fetch(GAS_WEB_APP_URL);
-    const text = await res.text();
-    const data = JSON.parse(text); // GAS が混雑時に返す HTML エラー画面もここで失敗扱い
-    if (!data || !Array.isArray(data.songs)) throw new Error('bad data');
-    return data;
-  }
   async function loadLibrary() {
-    if (libLoading) return;
-    libLoading = true;
-    let hasCache = false;
     try {
-      const cached = JSON.parse(localStorage.getItem(LIB_CACHE_KEY) || 'null');
-      if (cached && Array.isArray(cached.songs) && cached.songs.length && !window.appData) { applyLibraryData(cached); hasCache = true; }
-    } catch (e) {}
-    if (!hasCache && !window.appData) libMessage('📼 LOADING TAPES…', '#ffb347');
-    const delays = [0, 1000, 2000, 4000, 8000];
-    let lastErr = null;
-    for (let i = 0; i < delays.length; i++) {
-      if (delays[i]) {
-        if (!hasCache && !window.appData) libMessage(`📼 LOADING TAPES…（再試行 ${i + 1}/${delays.length}）`, '#ffb347');
-        await new Promise(r => setTimeout(r, delays[i]));
+      const res = await fetch(GAS_WEB_APP_URL);
+      const data = await res.json();
+      if(data.songs && data.songs.length > 0) {
+        setupGenreFilter(data.songs);
+        renderCassettes(data.songs);
+        window.appData = data;
+      } else {
+        document.getElementById('cassette-list').innerHTML = "<p style='color:orange; position:relative; z-index:11;'>NO DATA FOUND.</p>";
       }
-      try {
-        const data = await fetchLibraryOnce();
-        libLoading = false;
-        if (data.songs.length > 0) {
-          applyLibraryData(data);
-          try { localStorage.setItem(LIB_CACHE_KEY, JSON.stringify(data)); } catch (e) {}
-        } else {
-          libMessage('NO DATA FOUND.', 'orange');
-        }
-        return;
-      } catch (e) { lastErr = e; console.log(`library fetch failed (${i + 1}/${delays.length}):`, e); }
+    } catch(e) {
+      document.getElementById('cassette-list').innerHTML = "<p style='color:red; position:relative; z-index:11;'>DATA FETCH FAILED.</p>";
     }
-    libLoading = false;
-    if (window.appData) return; // 前回のデータを表示中ならそのまま使う
-    libMessage(`DATA FETCH FAILED.（${escapeHtml(String(lastErr && lastErr.message || lastErr))}）<br><button class="pop-btn" onclick="loadLibrary()" style="margin-top:8px;">🔄 もう一度読み込む</button>`, 'red');
   }
 
   function setupGenreFilter(songs) {
@@ -2633,13 +2500,7 @@
       micGain.connect(micDest);
       micGain.gain.value = parseInt(document.getElementById('mic-gain').value, 10) / 100;
       micMonitor = micCtx.createGain(); micMonitor.gain.value = 0; // [変更] ヘッドホンで自分の声を聞く
-      micMonitor.connect(micCtx.destination);
-      // [変更] モニター：原音ルートとエフェクトルートを用意して切り替え（歌うときは気持ちよく）
-      monitorFx = makeVoiceFx(micCtx); monitorFx.set(fx, true);
-      monDry = micCtx.createGain(); monWet = micCtx.createGain();
-      micGain.connect(monDry); monDry.connect(micMonitor);
-      micGain.connect(monitorFx.input); monitorFx.output.connect(monWet); monWet.connect(micMonitor);
-      const monOn = document.getElementById('fx-monitor').checked; monDry.gain.value = monOn ? 0 : 1; monWet.gain.value = monOn ? 1 : 0;
+      micGain.connect(micMonitor); micMonitor.connect(micCtx.destination);
     }
     micSrc.connect(micGain);
     document.getElementById('btn-mic').classList.add('on');
@@ -2760,10 +2621,6 @@
           listenSongGain.gain.setTargetAtTime(listenMode === 'mix' ? 0.8 : 0, listenCtx.currentTime, 0.03);
           setRecStatus(listenMode === 'mix' ? `TAKE ${selectedTake + 1} を曲とミックスして試聴中` : `TAKE ${selectedTake + 1}（録音のみ）を試聴中`);
         } else if (listening && listenMode === 'mix') setRecStatus('この曲は読み込めないため録音のみで試聴中');
-      } else if (seg.id === 'listen-fx') { // [変更] 試聴中でも 原音 ⇔ FX を切り替え
-        listenVoiceFx = btn.dataset.v; applyListenVoiceFx();
-      } else if (seg.id === 'save-fx') {
-        saveVoiceFx = btn.dataset.v;
       } else saveMode = btn.dataset.v;
     });
   });
@@ -2849,7 +2706,6 @@
   function stopTakeListen() {
     listenNodes.forEach(n => { try { n.onended = null; n.stop(); } catch (e) {} });
     listenNodes = []; listenInfo = null; listening = false; listenSongGain = null; listenKaraoke = null;
-    listenFx = null; listenVDry = null; listenVWet = null; // [変更]
     listenBtn.innerText = '▶ LISTEN';
   }
   listenBtn.onclick = async () => {
@@ -2871,13 +2727,7 @@
       const t0 = listenCtx.currentTime + 0.05;
       const v = listenCtx.createBufferSource(); v.buffer = vbuf;
       const vg = listenCtx.createGain(); vg.gain.value = 1.0;
-      // [変更] 声：原音ルートとエフェクトルートを用意（試聴中に切り替え・調整できる）
-      listenFx = makeVoiceFx(listenCtx); listenFx.set(fx, true);
-      listenVDry = listenCtx.createGain(); listenVWet = listenCtx.createGain();
-      listenVDry.gain.value = listenVoiceFx === 'fx' ? 0 : 1; listenVWet.gain.value = listenVoiceFx === 'fx' ? 1 : 0;
-      v.connect(listenVDry); listenVDry.connect(vg);
-      v.connect(listenFx.input); listenFx.output.connect(listenVWet); listenVWet.connect(vg);
-      vg.connect(listenCtx.destination);
+      v.connect(vg); vg.connect(listenCtx.destination);
       const L = latencyMs / 1000; // [変更] タイミング補正（録音の遅れ分だけ前へ）
       if (L >= 0) v.start(t0, Math.min(L, Math.max(0, vbuf.duration - 0.01))); else v.start(t0 - L);
       listenNodes.push(v);
@@ -2893,10 +2743,7 @@
         listenNodes.push(sn);
       }
       listenInfo = { t0, songStart: tk.songStart || 0 };
-      v.onended = () => { // [変更] エフェクトの余韻が消えてから停止
-        const tail = listenVoiceFx === 'fx' ? Math.min(3, fxTailSec()) * 1000 : 0;
-        setTimeout(() => { if (listenNodes.includes(v)) { stopTakeListen(); setRecStatus(`TAKE ${selectedTake + 1} の試聴が終わりました`); } }, tail);
-      };
+      v.onended = () => { stopTakeListen(); setRecStatus(`TAKE ${selectedTake + 1} の試聴が終わりました`); };
       setRecStatus(sbuf && listenMode === 'mix' ? `TAKE ${selectedTake + 1} を曲とミックスして試聴中` : `TAKE ${selectedTake + 1}（録音のみ）を試聴中${note}`);
     } catch (e) {
       console.log('listen failed:', e);
@@ -2915,8 +2762,7 @@
   async function mixWithSong(tk) {
     const voice = await decodeBlob(tk.blob);
     const song = await decodeBlob(currentSongBlob);
-    const useFx = saveVoiceFx === 'fx'; // [変更] SAVE の声をエフェクト付きに
-    const sr = 44100, len = voice.length + (useFx ? Math.floor(fxTailSec() * sr) : 0);
+    const sr = 44100, len = voice.length;
     const Offline = window.OfflineAudioContext || window.webkitOfflineAudioContext;
     const off = new Offline(2, len, sr);
     const sSrc = off.createBufferSource(); sSrc.buffer = song;
@@ -2926,8 +2772,7 @@
     const lim = off.createDynamicsCompressor();
     lim.threshold.value = -3; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.003; lim.release.value = 0.1;
     if (karaokeOn) { const kc = makeKaraokeChain(off); kc.set(true, karaokeAmount, true); sSrc.connect(kc.input); kc.output.connect(sG); } else sSrc.connect(sG); // [変更] カラオケ反映
-    if (useFx) { const vf = makeVoiceFx(off); vf.set(fx, true); vSrc.connect(vf.input); vf.output.connect(vG); } else vSrc.connect(vG); // [変更]
-    sG.connect(lim); vG.connect(lim); lim.connect(off.destination);
+    vSrc.connect(vG); sG.connect(lim); vG.connect(lim); lim.connect(off.destination);
     sSrc.start(0, Math.min(tk.songStart || 0, Math.max(0, song.duration - 0.01)));
     const L = latencyMs / 1000; // [変更] タイミング補正
     if (L >= 0) vSrc.start(0, Math.min(L, Math.max(0, voice.duration - 0.01))); else vSrc.start(-L);
@@ -2973,7 +2818,7 @@
       } else if (saveMode === 'mix') {
         note = '（この曲はミックスできないため録音のみ）';
       }
-      if (!audio) { setRecStatus('変換中…'); audio = await decodeBlob(tk.blob); if (saveVoiceFx === 'fx') audio = await renderVoiceWithFx(audio); } // [変更] 録音のみもFX可
+      if (!audio) { setRecStatus('変換中…'); audio = await decodeBlob(tk.blob); }
       const mp3 = await encodeMp3(audio);
       downloadBlob(mp3, base + '.mp3');
       setRecStatus(`${base}.mp3 を保存しました${note}`);
@@ -3284,191 +3129,6 @@
   }
   requestAnimationFrame(drawNoJacket);
 
-  // [変更] ===== VOICE FX（デジタルエフェクター）=====
-  // 値はすべて 0〜100。録音は常に原音で保存し、モニター・LISTEN・SAVE でこの設定を使う
-  const FX_PRESETS = {
-    'VOCAL ★': { eq: { on: true, lowcut: 35, bright: 45 }, comp: { on: true, amount: 50, gain: 45 }, chorus: { on: false, depth: 40, mix: 30 }, echo: { on: true, time: 35, feedback: 25, mix: 18 }, reverb: { on: true, size: 55, mix: 25 } },
-    'STUDIO':  { eq: { on: true, lowcut: 30, bright: 40 }, comp: { on: true, amount: 55, gain: 45 }, chorus: { on: false, depth: 40, mix: 30 }, echo: { on: false, time: 30, feedback: 20, mix: 15 }, reverb: { on: true, size: 30, mix: 18 } },
-    'KARAOKE': { eq: { on: true, lowcut: 35, bright: 45 }, comp: { on: true, amount: 50, gain: 45 }, chorus: { on: false, depth: 40, mix: 30 }, echo: { on: true, time: 35, feedback: 35, mix: 30 }, reverb: { on: true, size: 55, mix: 28 } },
-    'HALL':    { eq: { on: true, lowcut: 30, bright: 35 }, comp: { on: true, amount: 45, gain: 40 }, chorus: { on: false, depth: 40, mix: 30 }, echo: { on: false, time: 40, feedback: 20, mix: 15 }, reverb: { on: true, size: 85, mix: 42 } },
-    'DOUBLE':  { eq: { on: true, lowcut: 35, bright: 50 }, comp: { on: true, amount: 55, gain: 45 }, chorus: { on: true, depth: 45, mix: 40 }, echo: { on: false, time: 30, feedback: 20, mix: 15 }, reverb: { on: true, size: 40, mix: 20 } },
-    'DRY':     { eq: { on: false, lowcut: 35, bright: 45 }, comp: { on: false, amount: 50, gain: 45 }, chorus: { on: false, depth: 40, mix: 30 }, echo: { on: false, time: 35, feedback: 25, mix: 18 }, reverb: { on: false, size: 55, mix: 25 } }
-  };
-  const FX_ORDER = ['eq', 'comp', 'chorus', 'echo', 'reverb'];
-  const FX_NAMES = { eq: 'VOICE EQ', comp: 'COMPRESSOR', chorus: 'CHORUS', echo: 'ECHO', reverb: 'REVERB' };
-  const FX_KNOBS = {
-    eq:     [['lowcut', 'LOW CUT', v => `${Math.round(40 + v * 2)}Hz`], ['bright', 'BRIGHT', v => `+${(v * 0.07).toFixed(1)}dB`]],
-    comp:   [['amount', 'AMOUNT', v => `${Math.round(v)}%`], ['gain', 'GAIN', v => `+${(v * 0.1).toFixed(1)}dB`]],
-    chorus: [['depth', 'DEPTH', v => `${Math.round(v)}%`], ['mix', 'MIX', v => `${Math.round(v)}%`]],
-    echo:   [['time', 'TIME', v => `${Math.round(60 + v * 7.4)}ms`], ['feedback', 'REPEAT', v => `${Math.round(v * 0.75)}%`], ['mix', 'MIX', v => `${Math.round(v)}%`]],
-    reverb: [['size', 'SIZE', v => `${(0.6 + v * 0.039).toFixed(1)}s`], ['mix', 'MIX', v => `${Math.round(v)}%`]]
-  };
-  const clone = o => JSON.parse(JSON.stringify(o));
-  let fx = clone(FX_PRESETS['VOCAL ★']), fxPresetName = 'VOCAL ★', fxSel = 'reverb';
-  try { const saved = JSON.parse(localStorage.getItem('cds_voicefx') || 'null'); if (saved && saved.fx && saved.fx.reverb) { fx = saved.fx; fxPresetName = saved.name || 'CUSTOM'; } } catch (e) {}
-  let listenVoiceFx = 'fx', saveVoiceFx = 'fx';
-  let monitorFx = null, monDry = null, monWet = null, listenFx = null, listenVDry = null, listenVWet = null;
-
-  // リバーブ用のインパルス応答（残響）を生成（広さごとにキャッシュ）
-  const irCache = new WeakMap();
-  function getIR(ctx, seconds) {
-    let m = irCache.get(ctx); if (!m) { m = new Map(); irCache.set(ctx, m); }
-    if (m.has(seconds)) return m.get(seconds);
-    const sr = ctx.sampleRate, len = Math.floor(sr * seconds), buf = ctx.createBuffer(2, len, sr), pre = Math.floor(sr * 0.012);
-    for (let c = 0; c < 2; c++) {
-      const d = buf.getChannelData(c); let lp = 0;
-      for (let i = 0; i < len; i++) {
-        const t = i / sr, env = Math.pow(1 - i / len, 2) * Math.exp(-3 * t / seconds);
-        lp += ((Math.random() * 2 - 1) - lp) * (0.4 - 0.3 * (i / len)); // 後半ほど高音が減衰して自然な響きに
-        d[i] = i < pre ? 0 : lp * env;
-      }
-      for (let k = 0; k < 10; k++) { const pos = pre + Math.floor(sr * (0.004 + Math.random() * 0.07)); if (pos < len) d[pos] += (Math.random() < 0.5 ? -1 : 1) * 0.5 * (1 - k / 10); }
-    }
-    m.set(seconds, buf); return buf;
-  }
-  // エフェクトチェーン：EQ → COMP →（原音＋CHORUS＋ECHO＋REVERB）
-  function makeVoiceFx(ctx) {
-    const g = (v = 1) => { const n = ctx.createGain(); n.gain.value = v; return n; };
-    const bq = (type, f, q = 0.7) => { const n = ctx.createBiquadFilter(); n.type = type; n.frequency.value = f; n.Q.value = q; return n; };
-    const input = g(1), output = g(1);
-    const hpf = bq('highpass', 100), mud = bq('peaking', 320, 1.0), pres = bq('peaking', 3200, 0.9), air = bq('highshelf', 10000);
-    const comp = ctx.createDynamicsCompressor(); comp.attack.value = 0.006; comp.release.value = 0.18; comp.knee.value = 8;
-    const makeup = g(1);
-    input.connect(hpf); hpf.connect(mud); mud.connect(pres); pres.connect(air); air.connect(comp); comp.connect(makeup);
-    const core = makeup, dry = g(1); core.connect(dry); dry.connect(output);
-    // CHORUS：揺らした短いディレイ2本を左右に
-    const chMix = g(0); chMix.connect(output);
-    const chorusLine = (base, rate, pan) => {
-      const d = ctx.createDelay(0.1); d.delayTime.value = base;
-      const lfo = ctx.createOscillator(); lfo.frequency.value = rate;
-      const lg = g(0.003); lfo.connect(lg); lg.connect(d.delayTime); lfo.start();
-      core.connect(d);
-      if (ctx.createStereoPanner) { const pn = ctx.createStereoPanner(); pn.pan.value = pan; d.connect(pn); pn.connect(chMix); } else d.connect(chMix);
-      return lg;
-    };
-    const lg1 = chorusLine(0.018, 0.9, -0.7), lg2 = chorusLine(0.025, 1.3, 0.7);
-    // ECHO：フィードバック付きディレイ（繰り返すほど音がこもるアナログ風）
-    const eSend = g(0), eDelay = ctx.createDelay(2.0), eLP = bq('lowpass', 3800), eHP = bq('highpass', 180), eFb = g(0.3);
-    core.connect(eSend); eSend.connect(eDelay); eDelay.connect(eLP); eLP.connect(eHP); eHP.connect(eFb); eFb.connect(eDelay); eHP.connect(output);
-    // REVERB：プリディレイ → 低音カット → コンボルバー
-    const rSend = g(0), rPre = ctx.createDelay(0.2); rPre.delayTime.value = 0.02;
-    const rHP = bq('highpass', 200), conv = ctx.createConvolver();
-    core.connect(rSend); rSend.connect(rPre); rPre.connect(rHP); rHP.connect(conv); conv.connect(output);
-    let curSize = null;
-    const sv = (param, v, imm) => { if (imm) param.value = v; else param.setTargetAtTime(v, ctx.currentTime, 0.03); };
-    return {
-      input, output,
-      set(p, imm = false) {
-        const b = p.eq.bright / 100;
-        sv(hpf.frequency, p.eq.on ? 40 + p.eq.lowcut * 2 : 10, imm);
-        sv(pres.gain, p.eq.on ? b * 7 : 0, imm); sv(air.gain, p.eq.on ? b * 6 : 0, imm); sv(mud.gain, p.eq.on ? -b * 3 : 0, imm);
-        const a = p.comp.amount / 100;
-        sv(comp.threshold, p.comp.on ? -8 - a * 28 : 0, imm); sv(comp.ratio, p.comp.on ? 1.5 + a * 4.5 : 1, imm);
-        sv(makeup.gain, p.comp.on ? Math.pow(10, (p.comp.gain * 0.1) / 20) : 1, imm);
-        sv(chMix.gain, p.chorus.on ? p.chorus.mix / 100 * 0.7 : 0, imm);
-        const dep = 0.0005 + p.chorus.depth / 100 * 0.0055; sv(lg1.gain, dep, imm); sv(lg2.gain, dep, imm);
-        sv(eSend.gain, p.echo.on ? p.echo.mix / 100 * 0.6 : 0, imm);
-        sv(eDelay.delayTime, (60 + p.echo.time * 7.4) / 1000, imm);
-        sv(eFb.gain, p.echo.feedback / 100 * 0.75, imm);
-        sv(rSend.gain, p.reverb.on ? p.reverb.mix / 100 * 0.9 : 0, imm);
-        const size = Math.round((0.6 + p.reverb.size * 0.039) * 10) / 10;
-        if (size !== curSize) { curSize = size; conv.buffer = getIR(ctx, size); }
-      }
-    };
-  }
-  function fxTailSec() {
-    let t = 0.2;
-    if (fx.echo.on) t = Math.max(t, (60 + fx.echo.time * 7.4) / 1000 * (2 + fx.echo.feedback / 12));
-    if (fx.reverb.on) t = Math.max(t, 0.6 + fx.reverb.size * 0.039 + 0.2);
-    return Math.min(8, t);
-  }
-  // 保存用：原音をエフェクト付きで書き出す（残響の余韻分も含める）
-  async function renderVoiceWithFx(voice) {
-    const Offline = window.OfflineAudioContext || window.webkitOfflineAudioContext;
-    const off = new Offline(2, voice.length + Math.floor(fxTailSec() * 44100), 44100);
-    const src = off.createBufferSource(); src.buffer = voice;
-    const vf = makeVoiceFx(off); vf.set(fx, true);
-    const lim = off.createDynamicsCompressor();
-    lim.threshold.value = -2; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.003; lim.release.value = 0.1;
-    src.connect(vf.input); vf.output.connect(lim); lim.connect(off.destination);
-    src.start(0);
-    return await off.startRendering();
-  }
-  function saveFxState() { try { localStorage.setItem('cds_voicefx', JSON.stringify({ fx, name: fxPresetName })); } catch (e) {} }
-  function applyFxAll() {
-    if (monitorFx) monitorFx.set(fx);
-    if (listenFx) listenFx.set(fx);
-    saveFxState();
-  }
-  function applyMonitorFx() {
-    if (!monDry || !monWet) return;
-    const on = document.getElementById('fx-monitor').checked;
-    monDry.gain.setTargetAtTime(on ? 0 : 1, micCtx.currentTime, 0.03);
-    monWet.gain.setTargetAtTime(on ? 1 : 0, micCtx.currentTime, 0.03);
-  }
-  function applyListenVoiceFx() {
-    if (!listenVDry || !listenVWet) return;
-    const on = listenVoiceFx === 'fx';
-    listenVDry.gain.setTargetAtTime(on ? 0 : 1, listenCtx.currentTime, 0.03);
-    listenVWet.gain.setTargetAtTime(on ? 1 : 0, listenCtx.currentTime, 0.03);
-  }
-
-  // ---- 操作パネル ----
-  function renderFxUI(highlight) {
-    document.querySelectorAll('.fx-slot').forEach(sl => {
-      const k = sl.dataset.fx;
-      sl.classList.toggle('on', !!fx[k].on);
-      sl.classList.toggle('selected', k === fxSel);
-    });
-    document.querySelectorAll('.fx-preset').forEach(b => b.classList.toggle('active', b.dataset.preset === fxPresetName));
-    const defs = FX_KNOBS[fxSel];
-    document.querySelectorAll('.fx-knob').forEach((kn, i) => {
-      const d = defs[i];
-      kn.style.visibility = d ? 'visible' : 'hidden';
-      if (!d) return;
-      const v = fx[fxSel][d[0]];
-      kn.dataset.param = d[0];
-      kn.querySelector('.fx-dial').style.transform = `rotate(${-135 + v * 2.7}deg)`;
-      kn.querySelector('.fx-klabel').innerText = d[1];
-      kn.querySelector('.fx-kval').innerText = d[2](v);
-      kn.classList.toggle('dim', !fx[fxSel].on);
-    });
-    const act = FX_ORDER.filter(k => fx[k].on).map(k => ({ eq: 'EQ', comp: 'CMP', chorus: 'CHO', echo: 'ECH', reverb: 'REV' }[k])).join(' ') || '---';
-    document.getElementById('fx-lcd-1').innerText = `P:${fxPresetName}`;
-    document.getElementById('fx-lcd-1b').innerText = act;
-    document.getElementById('fx-lcd-2').innerText = highlight ||
-      `${FX_NAMES[fxSel]} ${fx[fxSel].on ? 'ON' : 'OFF'}  ` + defs.map(d => `${d[1]} ${d[2](fx[fxSel][d[0]])}`).join('  ');
-  }
-  function markCustom() { if (!fxPresetName.endsWith('*')) fxPresetName = fxPresetName.replace(/\s*\*$/, '') + '*'; }
-  document.querySelectorAll('.fx-slot').forEach(sl => {
-    sl.querySelector('.fx-name').onclick = () => { fxSel = sl.dataset.fx; renderFxUI(); };
-    sl.querySelector('.fx-power').onclick = () => {
-      fxSel = sl.dataset.fx; fx[fxSel].on = !fx[fxSel].on; markCustom(); applyFxAll(); renderFxUI(); playMechanicalSound();
-    };
-  });
-  document.querySelectorAll('.fx-preset').forEach(b => b.onclick = () => {
-    fxPresetName = b.dataset.preset; fx = clone(FX_PRESETS[fxPresetName]); applyFxAll(); renderFxUI(); playMechanicalSound();
-  });
-  document.querySelectorAll('.fx-knob').forEach(kn => {
-    const dial = kn.querySelector('.fx-dial');
-    let drag = null;
-    const setVal = v => {
-      const pname = kn.dataset.param; if (!pname) return;
-      fx[fxSel][pname] = Math.max(0, Math.min(100, Math.round(v)));
-      markCustom(); applyFxAll();
-      const d = FX_KNOBS[fxSel].find(x => x[0] === pname);
-      renderFxUI(`${FX_NAMES[fxSel]} ▶ ${d[1]} ${d[2](fx[fxSel][pname])}`);
-    };
-    dial.addEventListener('pointerdown', e => { e.preventDefault(); drag = { y: e.clientY, v: fx[fxSel][kn.dataset.param] }; dial.setPointerCapture(e.pointerId); });
-    dial.addEventListener('pointermove', e => { if (drag) setVal(drag.v + (drag.y - e.clientY) * 0.6); });
-    const end = () => { if (drag) { drag = null; setTimeout(() => renderFxUI(), 1200); } };
-    dial.addEventListener('pointerup', end); dial.addEventListener('pointercancel', end);
-    dial.addEventListener('wheel', e => { e.preventDefault(); setVal(fx[fxSel][kn.dataset.param] + (e.deltaY < 0 ? 3 : -3)); }, { passive: false });
-    dial.addEventListener('dblclick', () => { const base = FX_PRESETS['VOCAL ★'][fxSel][kn.dataset.param]; setVal(base); });
-  });
-  document.getElementById('fx-monitor').onchange = applyMonitorFx;
-  renderFxUI();
-
   // [変更] マウスオーバーで機能説明の吹き出し
   const UI_TIPS = [
     ['#btn-play', '▶ 曲を再生します。MP4 の場合は表示場所（枠内／別ウィンドウ）を選んでから再生します'],
@@ -3517,13 +3177,6 @@
     ['#mic-gain', 'マイク入力の大きさを調整します'],
     ['#theme-select', 'デッキの配色を変えます'],
     ['#genre-filter', 'ジャンルでカセットを絞り込みます'],
-    ['.fx-power', 'このエフェクトを ON/OFF します（赤く光ると ON）'],
-    ['.fx-name', 'このエフェクトを選んで、右のツマミで調整します'],
-    ['.fx-dial', '上下にドラッグ（またはホイール）で調整。ダブルクリックでおすすめ値に戻します'],
-    ['.fx-preset', 'エフェクトの組み合わせを一発で呼び出します（VOCAL ★ がおすすめ）'],
-    ['#fx-monitor', 'ON にすると、ヘッドホンで聞く自分の声にもエフェクトがかかります（録音は原音のまま）'],
-    ['#listen-fx', 'LISTEN で聞く声を 原音／エフェクト付き から選びます（試聴中も切り替え可）'],
-    ['#save-fx', 'SAVE で書き出す声を 原音／エフェクト付き から選びます（LISTEN で調整した設定で出力）'],
     ['#side-filter', 'Side（A／B／C／D）でカセットを絞り込みます（ジャンルと組み合わせ可）'],
     ['.panel-collapsible > .area-label', 'クリックでこのエリアを開く／たたむ']
   ];

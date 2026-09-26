@@ -1918,13 +1918,17 @@
     if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
     renderCassettes(data.songs, sel.value);
   }
-  async function fetchLibraryOnce() {
-    // [変更] GAS は応答に20秒以上かかることがあるため、途中で打ち切らない（元と同じリクエスト内容に戻す）
-    const res = await fetch(GAS_WEB_APP_URL);
-    const text = await res.text();
-    const data = JSON.parse(text); // GAS が混雑時に返す HTML エラー画面もここで失敗扱い
-    if (!data || !Array.isArray(data.songs)) throw new Error('bad data');
-    return data;
+  async function fetchLibraryOnce(timeoutMs) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+    try {
+      const url = GAS_WEB_APP_URL + (GAS_WEB_APP_URL.includes('?') ? '&' : '?') + '_=' + Date.now(); // キャッシュされた失敗応答を避ける
+      const res = await fetch(url, { signal: ctrl.signal, cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = JSON.parse(await res.text()); // GAS が混雑時に返す HTML エラー画面もここで失敗扱い
+      if (!data || !Array.isArray(data.songs)) throw new Error('bad data');
+      return data;
+    } finally { clearTimeout(timer); }
   }
   async function loadLibrary() {
     if (libLoading) return;
@@ -1943,7 +1947,7 @@
         await new Promise(r => setTimeout(r, delays[i]));
       }
       try {
-        const data = await fetchLibraryOnce();
+        const data = await fetchLibraryOnce(20000);
         libLoading = false;
         if (data.songs.length > 0) {
           applyLibraryData(data);
