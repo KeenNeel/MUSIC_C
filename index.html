@@ -3728,7 +3728,11 @@
     currentMedia.play().then(() => {
       updatePlayState(true);
     }).catch(e => {
-      if (e && e.name === 'AbortError') return;
+      if (e && e.name === 'AbortError') { // [変更] 再生が割り込みで中断された場合は一度だけやり直す（iPhone 対策）
+        const m = currentMedia;
+        setTimeout(() => { if (m === currentMedia && m.paused) m.play().then(() => updatePlayState(true)).catch(() => {}); }, 250);
+        return;
+      }
       console.log("Play failed:", e, currentMedia.error);
       updatePlayState(false);
       const errCode = currentMedia.error ? currentMedia.error.code : null;
@@ -3820,6 +3824,127 @@
     el.style.animationDuration = (2.2 + Math.random() * 2.8).toFixed(2) + 's';
     el.style.animationDelay = (-Math.random() * 5).toFixed(2) + 's';
   });
+
+
+  // [変更] バックグラウンド再生（ここから）
+  // iPhone/iPad では画面ロックや別アプリへの切り替えで Web Audio（EQ など）が止められ、曲も無音になる。
+  // 画面が隠れたら EQ を通さない予備のプレーヤーへ同じ位置から引き継ぎ、戻ったら元のプレーヤーへ戻す。
+  const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const bgAudio = new Audio();
+  bgAudio.preload = 'auto'; bgAudio.setAttribute('playsinline', '');
+  bgAudio.preservesPitch = true; bgAudio.webkitPreservesPitch = true;
+  let bgActive = false;
+  let bgToken = 0; // [変更] 引き継ぎ処理の世代番号（復帰後に遅れて引き継ぎが完了する事故を防ぐ）
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+  // [変更] 予備プレーヤーを使えるようにする準備（無音を一度だけ鳴らす）。
+  //        以前は PLAY と同時に行っていたが、iPhone は同時に2つ鳴らすと片方が止まり PLAY が効かなくなるため、
+  //        何も再生していないときの画面タップ（カセット選択など）で一度だけ行う
+  let bgPrimed = false;
+  function makeSilentWavUrl() {
+    const n = 4410, buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
+    const w = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+    w(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true);
+    v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, 44100, true); v.setUint32(28, 88200, true);
+    v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, n * 2, true);
+    return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+  }
+  function primeBgAudio(e) {
+    if (!IS_IOS || bgPrimed || bgActive) return;
+    if (!audioEl.paused || !videoEl.paused || recState || listening || calibrating) return;
+    if (e && e.target && e.target.closest && e.target.closest('#btn-play, #btn-take-listen, #btn-rec, #btn-calibrate, .pb-btn')) return;
+    bgPrimed = true;
+    bgAudio.src = makeSilentWavUrl();
+    bgAudio.play().then(() => bgAudio.pause()).catch(() => { bgPrimed = false; });
+  }
+  document.addEventListener('touchend', primeBgAudio, true);
+  document.addEventListener('click', primeBgAudio, true);
+  function canHandOff() {
+    return IS_IOS && currentMedia === audioEl && isPlaying && !audioEl.paused && eqSources.has(audioEl)
+      && !recState && !recArmed && !listening && !calibrating;
+  }
+  function startBgPlayback() {
+    const src = audioEl.currentSrc || audioEl.src;
+    const t = audioEl.currentTime;
+    if (bgAudio.src !== src) bgAudio.src = src;
+    bgAudio.loop = isRepeat;
+    bgAudio.defaultPlaybackRate = playSpeed; bgAudio.playbackRate = playSpeed;
+    const token = ++bgToken; // [変更]
+    const go = () => {
+      if (token !== bgToken || !document.hidden) return; // [変更] すでに画面に戻っていたら引き継がない
+      try { bgAudio.currentTime = t; } catch (e) {}
+      bgAudio.play().then(() => {
+        if (token !== bgToken || !document.hidden) { bgAudio.pause(); return; } // [変更] 引き継ぎ完了前に復帰した場合は元のまま
+        bgActive = true; audioEl.pause(); setMediaSessionState();
+      }).catch(e => console.log('background handoff failed:', e));
+    };
+    if (bgAudio.readyState >= 1) go(); else bgAudio.addEventListener('loadedmetadata', go, { once: true });
+  }
+  function endBgPlayback() {
+    bgActive = false;
+    const t = bgAudio.currentTime, ended = bgAudio.ended, playing = !bgAudio.paused && !ended;
+    bgAudio.pause();
+    if (eqCtx && eqCtx.state !== 'running') eqCtx.resume().catch(() => {});
+    try { audioEl.currentTime = t; } catch (e) {}
+    if (playing) audioEl.play().then(() => updatePlayState(true)).catch(() => updatePlayState(false));
+    else { updatePlayState(false); if (ended) showIdleBubble(); }
+    setMediaSessionState();
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { if (canHandOff()) startBgPlayback(); }
+    else onPageReturn(); // [変更]
+  });
+  // [変更] 画面に戻ったときの後始末（引き継ぎ中止・EQ再開・表示と実際の再生状態を合わせる）
+  function onPageReturn() {
+    bgToken++;
+    if (bgActive) { endBgPlayback(); return; }
+    if (!bgAudio.paused) bgAudio.pause();
+    if (eqCtx && eqCtx.state !== 'running') eqCtx.resume().catch(() => {});
+    if (isPlaying && currentMedia && currentMedia.paused) updatePlayState(false); // 裏で止められていたら PLAY を押せる表示に
+  }
+  window.addEventListener('pageshow', e => { if (e.persisted) onPageReturn(); }); // [変更] 戻る操作でページが復元された場合
+  // [変更] iPhone では裏から戻ると EQ の音声処理が「中断」状態のまま残り、PLAY を押しても無音になることがある。
+  //        画面をタッチしたとき・PLAY を押したときに、その場で再開させる（タッチ中でないと再開できないため）
+  function wakeAudio() {
+    if (eqCtx && eqCtx.state !== 'running' && eqCtx.state !== 'closed') { try { eqCtx.resume().catch(() => {}); } catch (e) {} }
+  }
+  document.addEventListener('touchend', wakeAudio, true);
+  document.getElementById('btn-play').addEventListener('click', () => {
+    bgToken++;
+    if (bgActive || !bgAudio.paused) { bgActive = false; bgAudio.pause(); } // 予備プレーヤーが残っていたら止める
+    wakeAudio();
+  }, true);
+  // [変更] PLAY 後の確認：実際の再生状態と表示を合わせる（再生の応答が返らない iPhone の不具合対策）
+  document.getElementById('btn-play').addEventListener('click', () => {
+    setTimeout(() => {
+      if (!currentSong || currentMedia !== audioEl) return;
+      if (!audioEl.paused && !isPlaying) updatePlayState(true);
+      else if (audioEl.paused && isPlaying && !bgActive) updatePlayState(false);
+      wakeAudio();
+    }, 1500);
+  });
+  // ロック画面・通知の再生コントロール（曲名表示・再生/一時停止・5秒戻し/送り）
+  function setMediaSessionState() {
+    if (!('mediaSession' in navigator)) return;
+    try {
+      if (currentSong) {
+        const art = currentSong.jacket_file ? [{ src: new URL(currentSong.jacket_file, location.href).href }] : [];
+        navigator.mediaSession.metadata = new MediaMetadata({ title: currentSong.title || '', artist: currentSong.artist || currentSong.genre || '', album: 'Cassette Deck Studio', artwork: art });
+      }
+      const playingNow = bgActive ? !bgAudio.paused : isPlaying;
+      navigator.mediaSession.playbackState = playingNow ? 'playing' : 'paused';
+    } catch (e) {}
+  }
+  if ('mediaSession' in navigator) {
+    const msEl = () => bgActive ? bgAudio : currentMedia;
+    const setAction = (name, fn) => { try { navigator.mediaSession.setActionHandler(name, fn); } catch (e) {} };
+    setAction('play', () => { if (bgActive) bgAudio.play().then(setMediaSessionState).catch(() => {}); else document.getElementById('btn-play').click(); });
+    setAction('pause', () => { if (bgActive) { bgAudio.pause(); setMediaSessionState(); } else document.getElementById('btn-pause').click(); });
+    setAction('seekbackward', d => { const el = msEl(); if (el && isFinite(el.duration)) el.currentTime = Math.max(0, el.currentTime - ((d && d.seekOffset) || 5)); });
+    setAction('seekforward', d => { const el = msEl(); if (el && isFinite(el.duration)) el.currentTime = Math.min(el.duration, el.currentTime + ((d && d.seekOffset) || 5)); });
+    [audioEl, videoEl].forEach(el => { el.addEventListener('play', setMediaSessionState); el.addEventListener('pause', () => { if (!bgActive) setMediaSessionState(); }); });
+    ['btn-play', 'btn-pause', 'btn-stop'].forEach(id => document.getElementById(id).addEventListener('click', () => setTimeout(setMediaSessionState, 300)));
+  }
+  // [変更] バックグラウンド再生（ここまで）
 
   window.onload = loadLibrary;
 </script>
