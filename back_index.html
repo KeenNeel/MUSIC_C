@@ -1094,15 +1094,6 @@
     .cassette-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } /* [変更] スマホは横2つ */
     .cassette-card .cassette-label { font-size: 9px; }
   }
-  /* [変更] TOP・PAUSE・REW・FF と 前の曲・次の曲 はほかのボタンと色を変えて区別（青いメタル調） */
-  .controls-layout #btn-top, .controls-layout #btn-pause, .controls-layout #btn-rew, .controls-layout #btn-ff,
-  .controls-layout #btn-prev-song, .controls-layout #btn-next-song {
-    background: linear-gradient(to bottom, #5b83b3 0%, #2d4f7c 55%, #1f3a5f 100%);
-    border: 1px solid #8fbbef; border-bottom: 4px solid #0e1f36;
-    color: #eef5ff !important; text-shadow: 0 1px 1px rgba(0,0,0,0.7);
-  }
-  .controls-layout #btn-top:active, .controls-layout #btn-pause:active, .controls-layout #btn-rew:active, .controls-layout #btn-ff:active,
-  .controls-layout #btn-prev-song:active, .controls-layout #btn-next-song:active { border-bottom: 1px solid #0e1f36; }
 </style>
 </head>
 <body class="theme-brass"><!-- [変更] 初期テーマ MIDNIGHT BRASS -->
@@ -1276,10 +1267,6 @@
       </div>
 
       <div class="btn-group-right">
-        <div class="btn-row"><!-- [変更] 前の曲・次の曲 -->
-          <button class="btn" id="btn-prev-song">⏮ 前の曲</button>
-          <button class="btn" id="btn-next-song">次の曲 ⏭</button>
-        </div>
         <div class="btn-row">
           <button class="btn" id="btn-top">⏮ TOP</button>
           <button class="btn" id="btn-pause">❚❚ PAUSE<div class="led-lamp" id="led-pause"></div></button>
@@ -1288,10 +1275,6 @@
           <button class="btn" id="btn-rew">⏪ REW</button>
           <button class="btn" id="btn-ff">⏩ FF</button>
           <button class="btn" id="btn-repeat">🔁 REPEAT<div class="led-lamp" id="led-repeat"></div></button>
-        </div>
-        <div class="btn-row"><!-- [変更] 連続再生（順番／ランダム） -->
-          <button class="btn" id="btn-cont-seq">⏭ 連続再生<div class="led-lamp" id="led-cont-seq"></div></button>
-          <button class="btn" id="btn-cont-rnd">🔀 ランダム連続<div class="led-lamp" id="led-cont-rnd"></div></button>
         </div>
         <div class="btn-row karaoke-row"><!-- [変更] カラオケ（ボーカル除去） -->
           <button class="btn karaoke-btn" id="btn-karaoke">🎤 KARAOKE<div class="led-lamp" id="led-karaoke"></div></button>
@@ -2084,10 +2067,7 @@
     if(['jpg', 'jpeg', 'png', 'gif'].includes(ext)) {
       el.innerHTML = `<img src="${safeUrl}" style="max-width:100%; border-radius:3px; position:relative; z-index:11;">`;
       el.querySelector('img').onerror = () => { if (el.dataset.req === reqId) el.innerText = NO_CONTENT; };
-    } else if (['mp4', 'webm'].includes(ext)) { // [変更] 動画は枠内で再生（全画面・別ウィンドウなし）
-      el.innerHTML = `<video src="${safeUrl}" controls playsinline controlslist="nofullscreen nodownload noremoteplayback" disablepictureinpicture style="max-width:100%; border-radius:3px; position:relative; z-index:11; display:block;"></video>`;
-      el.querySelector('video').onerror = () => { if (el.dataset.req === reqId) el.innerText = NO_CONTENT; };
-    } else if (['pdf'].includes(ext)) { // [変更] 動画を除外
+    } else if (['pdf', 'mp4', 'webm'].includes(ext)) {
       el.innerHTML = `<div style="text-align:center; padding-top:20px; position:relative; z-index:11;">インライン表示非対応形式です。<br><br><a class="pop-btn" href="#" data-pop-url="${safeUrl}" onclick="openInNewWindowSafe(this.dataset.popUrl, 'Document'); return false;">別ウィンドウで開く ↗</a></div>`; // [変更] 戻るボタン付きで開く
     } else {
       try {
@@ -2233,7 +2213,6 @@
     playBubble.style.left = Math.max(4, r.left - d.left) + 'px';
     playBubble.style.top = (r.top - d.top) + 'px';
     playBubble.classList.add('show');
-    speakVideoGuide(); // [変更] 音声でも案内
   }
   function hidePlayBubble() { playBubble.classList.remove('show'); }
   document.addEventListener('click', (e) => {
@@ -2311,7 +2290,8 @@
       return;
     }
     if(['mp4', 'webm'].includes(ext)) {
-      return; // [変更] 動画は別ウィンドウで開かない
+      openVideoPopup(full, title);
+      return;
     }
 
     try {
@@ -2331,7 +2311,8 @@
     const ext = (currentSong.media_file || '').split('?')[0].split('.').pop().toLowerCase();
     const isVid = ['mp4', 'webm', 'ogg', 'mov'].includes(ext);
     if(isVid) {
-      return; // [変更] 動画は別ウィンドウで開かない（枠内のみ）
+      const src = (videoEl.currentSrc && videoEl.currentSrc.startsWith('blob:')) ? videoEl.currentSrc : absUrl(currentSong.media_file);
+      openVideoPopup(src, `${currentSong.title} - Video`); // [変更]
     } else {
       const imgSrc = jacketImg.src;
       if(imgSrc && !imgSrc.startsWith('data:image/svg')) {
@@ -2505,7 +2486,7 @@
     if (playing) hideIdleBubble(); else showIdleBubble(); // [変更] 停止中はマウスオーバーで表示できる状態に
     if (playing && !tabBubbleShown && currentSong) { tabBubbleShown = true; setTimeout(showTabBubble, 50); } // [変更]
     // MP4 を枠内で演奏中は「別ウィンドウで開く」を非表示
-    document.getElementById('btn-pop-media').style.display = (currentMedia === videoEl) ? 'none' : ''; // [変更] 動画の曲では常に非表示
+    document.getElementById('btn-pop-media').style.display = (playing && currentMedia === videoEl) ? 'none' : '';
   }
   document.getElementById('btn-desc-write').onclick = () => document.getElementById('btn-comments-open').click();
 
@@ -3735,9 +3716,10 @@
   document.getElementById('btn-play').onclick = () => { 
     if(!currentSong) { alert("カセットを選んでください"); return; }
     if(!currentMedia.getAttribute('src')) { alert("この曲にはメディアファイル (media_file) が設定されていません。"); return; }
-    // [変更] MP4 は確認なしで自動的に枠内で再生（別ウィンドウ・全画面は使わない）
+    // [変更] MP4 は表示モード確認ダイアログを出してから再生
     if(currentMedia === videoEl && !videoModeLocked) {
-      document.getElementById('btn-mode-inline').click();
+      playMechanicalSound();
+      showPlayBubble(); // [変更] 吹き出しで表示場所を選択
       return;
     }
     playMechanicalSound();
@@ -3963,146 +3945,6 @@
     ['btn-play', 'btn-pause', 'btn-stop'].forEach(id => document.getElementById(id).addEventListener('click', () => setTimeout(setMediaSessionState, 300)));
   }
   // [変更] バックグラウンド再生（ここまで）
-
-
-  // [変更] 連続再生（ここから）：曲が終わったら、いま一覧に表示されている曲（ジャンル・Side の絞り込み後）の範囲で次の曲へ
-  let contMode = null;        // null / 'seq'（順番） / 'rnd'（ランダム）
-  let rndPlayed = new Set();  // ランダムで一巡するまでに再生した曲
-  let lastVideoMode = null;   // 動画の再生場所で最後に選んだもの（'inline' のときは連続再生でも自動で枠内再生）
-  function setContMode(m) {
-    contMode = (contMode === m) ? null : m;
-    rndPlayed = new Set();
-    document.getElementById('led-cont-seq').classList.toggle('led-repeat-active', contMode === 'seq');
-    document.getElementById('led-cont-rnd').classList.toggle('led-repeat-active', contMode === 'rnd');
-    if (contMode && isRepeat) { // 連続再生と 1 曲リピートは同時に使えないため REPEAT を解除
-      isRepeat = false; currentMedia.loop = false; bgAudio.loop = false;
-      document.getElementById('led-repeat').classList.remove('led-repeat-active');
-    }
-  }
-  document.getElementById('btn-cont-seq').onclick = () => { playMechanicalSound(); setContMode('seq'); };
-  document.getElementById('btn-cont-rnd').onclick = () => { playMechanicalSound(); setContMode('rnd'); };
-  document.getElementById('btn-repeat').addEventListener('click', () => { if (isRepeat && contMode) setContMode(contMode); }); // REPEAT を ON にしたら連続再生は OFF
-  document.getElementById('btn-mode-inline').addEventListener('click', () => { lastVideoMode = 'inline'; });
-  document.getElementById('btn-mode-fullscreen').addEventListener('click', () => { lastVideoMode = 'popup'; });
-  function contPlaylist() {
-    const songs = (window.appData && window.appData.songs) || [];
-    const g = document.getElementById('genre-filter').value;
-    return (g === 'all' ? songs : songs.filter(s => s.genre === g)).filter(sideFilterMatch)
-      .filter(s => s.title !== undefined && s.title !== null && String(s.title).trim() !== '');
-  }
-  function pickNextSong() {
-    const list = contPlaylist();
-    if (!list.length) return null;
-    const idx = currentSong ? list.findIndex(s => String(s.id) === String(currentSong.id)) : -1;
-    if (contMode === 'seq') return list[(idx + 1) % list.length]; // 最後まで行ったら最初に戻る
-    if (currentSong) rndPlayed.add(String(currentSong.id));
-    let pool = list.filter(s => !rndPlayed.has(String(s.id)));
-    if (!pool.length) { rndPlayed = new Set(currentSong ? [String(currentSong.id)] : []); pool = list.filter(s => !rndPlayed.has(String(s.id))); }
-    if (!pool.length) pool = list; // 1 曲だけのとき
-    return pool[Math.floor(Math.random() * pool.length)];
-  }
-  const songMediaUrl = song => (song.media_file || '').replace(/#/g, '%23');
-  const isVideoSong = song => ['mp4', 'webm', 'ogg', 'mov'].includes(songMediaUrl(song).split('?')[0].split('.').pop().toLowerCase());
-  function markInDeck(song) {
-    document.querySelectorAll('.cassette-card.in-deck').forEach(c => c.classList.remove('in-deck'));
-    const card = [...document.querySelectorAll('.cassette-card')].find(c => c.dataset.songId === String(song.id));
-    if (card) card.classList.add('in-deck');
-  }
-  // 録音したテイクがある曲では自動で次へ進まない（曲を替えるとテイクが消えるため）
-  const contBlocked = () => !contMode || isRepeat || recState || recArmed || listening || calibrating || takes.some(Boolean);
-  function advanceToNext() {
-    if (contBlocked()) return;
-    const next = pickNextSong();
-    if (!next) return;
-    if (currentSong) navHistory.push(currentSong); // [変更] 「前の曲」で戻れるように記録
-    markInDeck(next);
-    loadSong(next);
-    setTimeout(() => {
-      if (currentSong !== next) return; // その間に別の曲が選ばれた
-      if (isVideoSong(next) && lastVideoMode === 'inline' && !document.hidden) document.getElementById('btn-mode-inline').click();
-      else document.getElementById('btn-play').click();
-    }, 700);
-  }
-  [audioEl, videoEl].forEach(el => el.addEventListener('ended', () => {
-    if (el !== currentMedia || bgActive) return;
-    setTimeout(advanceToNext, 400);
-  }));
-  // iPhone で画面が隠れて予備プレーヤーで再生中に曲が終わった場合も、そのまま次の曲へ
-  bgAudio.addEventListener('ended', () => {
-    if (!bgActive || contBlocked()) return;
-    const next = pickNextSong();
-    if (!next || isVideoSong(next)) return; // 動画は画面が隠れていると再生できない
-    loadSong(next);
-    markInDeck(next);
-    bgAudio.src = songMediaUrl(next);
-    bgAudio.loop = false;
-    bgAudio.defaultPlaybackRate = playSpeed; bgAudio.playbackRate = playSpeed;
-    bgAudio.play().then(() => { isPlaying = true; setMediaSessionState(); }).catch(e => console.log('background next failed:', e));
-  });
-  UI_TIPS.push(['#btn-cont-seq', 'ON にすると、曲が終わったら一覧（ジャンル・Side で絞り込んだ範囲）の次の曲を続けて再生します。最後の曲の次は最初に戻ります']);
-  UI_TIPS.push(['#btn-cont-rnd', 'ON にすると、一覧（ジャンル・Side で絞り込んだ範囲）からランダムに続けて再生します。全曲を一巡するまで同じ曲は出ません']);
-  // [変更] 前の曲・次の曲ボタン：一覧（ジャンル・Side で絞り込んだ範囲）の中で切り替え。
-  //        再生中なら切り替えた曲をそのまま再生、停止中なら入れ替えるだけ。ランダム連続が ON のときは「次」はランダム、「前」は直前に聴いた曲
-  let navHistory = [];
-  function songNav(dir) {
-    if (recState || recArmed) { setRecStatus('録音中・録音待機中は曲を切り替えられません'); return; }
-    if (calibrating) return;
-    if (takes.some(Boolean) && !confirm('録音したテイクは曲を切り替えると消えます。切り替えますか？\n（残す場合は先に 💾 SAVE してください）')) return;
-    const list = contPlaylist();
-    if (!list.length) return;
-    const idx = currentSong ? list.findIndex(s => String(s.id) === String(currentSong.id)) : -1;
-    let target;
-    if (dir > 0) target = contMode === 'rnd' ? pickNextSong() : list[(idx + 1) % list.length];
-    else if (contMode === 'rnd' && navHistory.length) target = navHistory.pop();
-    else target = list[idx < 0 ? list.length - 1 : (idx - 1 + list.length) % list.length];
-    if (!target) return;
-    if (dir > 0 && currentSong) navHistory.push(currentSong);
-    if (navHistory.length > 50) navHistory.shift();
-    const wasPlaying = bgActive ? !bgAudio.paused : isPlaying;
-    playMechanicalSound();
-    if (bgActive) { // iPhone で画面が隠れて予備プレーヤーで再生中（ロック画面から操作した場合）
-      loadSong(target); markInDeck(target);
-      if (isVideoSong(target)) { bgActive = false; bgAudio.pause(); setMediaSessionState(); return; }
-      bgAudio.src = songMediaUrl(target); bgAudio.loop = false;
-      bgAudio.defaultPlaybackRate = playSpeed; bgAudio.playbackRate = playSpeed;
-      if (wasPlaying) bgAudio.play().then(() => { isPlaying = true; setMediaSessionState(); }).catch(() => {});
-      else setMediaSessionState();
-      return;
-    }
-    markInDeck(target);
-    loadSong(target);
-    if (wasPlaying) setTimeout(() => { if (currentSong === target) document.getElementById('btn-play').click(); }, 700);
-  }
-  document.getElementById('btn-next-song').onclick = () => songNav(1);
-  document.getElementById('btn-prev-song').onclick = () => songNav(-1);
-  if ('mediaSession' in navigator) { // ロック画面の「前へ」「次へ」
-    try { navigator.mediaSession.setActionHandler('nexttrack', () => songNav(1)); } catch (e) {}
-    try { navigator.mediaSession.setActionHandler('previoustrack', () => songNav(-1)); } catch (e) {}
-  }
-  UI_TIPS.push(['#btn-next-song', '一覧（ジャンル・Side で絞り込んだ範囲）の次の曲に切り替えます。再生中ならそのまま再生します']);
-  UI_TIPS.push(['#btn-prev-song', '一覧（ジャンル・Side で絞り込んだ範囲）の前の曲に切り替えます。再生中ならそのまま再生します']);
-  // [変更] 連続再生（ここまで）
-
-  // [変更] 動画の曲を選んだ時点で「別ウィンドウで開く」を隠す／全画面・ピクチャインピクチャを使わない
-  videoEl.addEventListener('loadstart', () => { if (currentMedia === videoEl) document.getElementById('btn-pop-media').style.display = 'none'; });
-  audioEl.addEventListener('loadstart', () => { if (currentMedia === audioEl) document.getElementById('btn-pop-media').style.display = ''; });
-  videoEl.setAttribute('playsinline', ''); videoEl.setAttribute('webkit-playsinline', '');
-  videoEl.disablePictureInPicture = true; videoEl.setAttribute('disablepictureinpicture', '');
-  videoEl.addEventListener('dblclick', e => e.preventDefault());
-
-  // [変更] 動画（MP4）の再生場所を音声でも案内
-  function speakVideoGuide() {
-    try {
-      if (!('speechSynthesis' in window)) return;
-      speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance('動画の再生場所を選んでください。枠内がおすすめです');
-      u.lang = 'ja-JP';
-      const ja = speechSynthesis.getVoices().find(v => /^ja/i.test(v.lang));
-      if (ja) u.voice = ja;
-      speechSynthesis.speak(u);
-    } catch (e) {}
-  }
-  ['btn-mode-inline', 'btn-mode-fullscreen'].forEach(id => document.getElementById(id).addEventListener('click', () => { try { speechSynthesis.cancel(); } catch (e) {} }));
 
   window.onload = loadLibrary;
 </script>
