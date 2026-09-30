@@ -1094,15 +1094,149 @@
     .cassette-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } /* [変更] スマホは横2つ */
     .cassette-card .cassette-label { font-size: 9px; }
   }
-  /* [変更] TOP・PAUSE・REW・FF と 前の曲・次の曲 はほかのボタンと色を変えて区別（青いメタル調） */
-  .controls-layout #btn-top, .controls-layout #btn-pause, .controls-layout #btn-rew, .controls-layout #btn-ff,
-  .controls-layout #btn-prev-song, .controls-layout #btn-next-song {
-    background: linear-gradient(to bottom, #5b83b3 0%, #2d4f7c 55%, #1f3a5f 100%);
-    border: 1px solid #8fbbef; border-bottom: 4px solid #0e1f36;
-    color: #eef5ff !important; text-shadow: 0 1px 1px rgba(0,0,0,0.7);
+  /* [変更] 再生コントロール（案B＋LED のレイアウト・案A のトーン：ダークメタルのキー＋グループ見出し＋LED） */
+  .controls-layout .deck-ctl { flex: 1 1 100%; width: 100%; display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 11; }
+  .ctl-grp { border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 9px 10px 10px; background: rgba(0,0,0,0.28); box-shadow: inset 0 1px 0 rgba(255,255,255,0.04); }
+  .ctl-glabel { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; font-size: 10px; font-weight: 900; letter-spacing: 2px; }
+  .ctl-glabel i { display: inline-block; width: 18px; height: 3px; border-radius: 2px; background: currentColor; box-shadow: 0 0 6px currentColor; }
+  .ctl-glabel small { font-size: 10px; letter-spacing: 1px; opacity: 0.8; font-weight: 800; }
+  .ctl-glabel.g-blue { color: #8cc4ff; } .ctl-glabel.g-green { color: #8dff9b; } .ctl-glabel.g-pink { color: #ff9be6; }
+  .ctl-keys { display: grid; grid-template-columns: repeat(6, 1fr) 10px repeat(2, 0.9fr); gap: 5px; }
+  .ctl-sep { display: block; }
+  .pkey { position: relative; height: 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer;
+    color: #ececec; font-weight: 900; font-size: clamp(10px, 0.95vw, 12px); letter-spacing: 0.5px;
+    background: linear-gradient(to bottom, #3b3e43 0%, #25272b 60%, #1b1c1f 100%); border: 1px solid #5b6068; border-bottom: 6px solid #0a0b0c;
+    border-radius: 4px 4px 6px 6px; box-shadow: 0 3px 5px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08); transition: transform .05s; }
+  .pkey b { font-size: 17px; line-height: 1; }
+  .pkey:active { transform: translateY(3px); border-bottom-width: 3px; }
+  .pkey .led-lamp { position: absolute; top: 6px; right: 6px; width: 9px; height: 9px; }
+  .pkey-play { border-top: 3px solid #39ff5a; }
+  .pkey-stop { border-top: 3px solid #ff3a3a; }
+  .pkey-play b { color: #b9ffc3; } .pkey-stop b { color: #ffb3b3; }
+  .pkey-play:has(.led-play-active), .pkey-pause:has(.led-pause-active) { transform: translateY(3px); border-bottom-width: 3px; background: linear-gradient(to bottom, #1f2124, #111214); }
+  .pkey-track { font-size: clamp(10px, 0.9vw, 11px); }
+  .ctl-lower { display: flex; gap: 10px; }
+  .ctl-mode { flex: 1 1 0; } .ctl-sound { flex: 1.7 1 0; }
+  .ctl-toggles { display: flex; gap: 6px; }
+  .tog-btn { flex: 1 1 0; display: flex; align-items: center; justify-content: center; gap: 7px; height: 36px; padding: 0 6px; cursor: pointer; white-space: nowrap;
+    color: #e6e6e6; font-weight: 900; font-size: clamp(10px, 0.9vw, 11px); background: linear-gradient(to bottom, #34373c, #1e2023); border: 1px solid #555a61; border-bottom: 3px solid #0a0b0c; border-radius: 5px; }
+  .tog-btn:active { transform: translateY(2px); border-bottom-width: 1px; }
+  .tog-btn .led-lamp { flex: 0 0 auto; position: relative; width: 28px; height: 15px; border-radius: 8px; background: #0e0f10; border: 1px solid #50555c; box-shadow: inset 0 1px 3px rgba(0,0,0,0.9); transition: background .15s; }
+  .tog-btn .led-lamp::after { content: ''; position: absolute; top: 1px; left: 1px; width: 11px; height: 11px; border-radius: 50%; background: #7d8288; transition: left .15s, background .15s; }
+  .tog-btn .led-lamp.led-repeat-active { background: #163d1d; border-color: #39ff5a; box-shadow: 0 0 6px rgba(57,255,90,0.5); }
+  .tog-btn .led-lamp.led-repeat-active::after { left: 14px; background: #39ff5a; box-shadow: 0 0 6px #39ff5a; }
+  .tog-btn.karaoke-btn.on .led-lamp { background: #4a1640; border-color: #ff4fd8; box-shadow: 0 0 6px rgba(255,79,216,0.5); }
+  .tog-btn.karaoke-btn.on .led-lamp::after { left: 14px; background: #ff4fd8; box-shadow: 0 0 6px #ff4fd8; }
+  .snd-row { display: flex; align-items: center; gap: 8px; }
+  .snd-row + .snd-row { margin-top: 7px; }
+  .snd-name { flex: 0 0 auto; width: 118px; font-size: 11px; font-weight: 900; color: #d8d8d8; padding-left: 4px; }
+  .snd-row .tog-btn { flex: 0 0 118px; height: 30px; }
+  .snd-row input[type=range] { flex: 1 1 auto; min-width: 60px; }
+  #speed-slider { accent-color: #e0b35a; } #karaoke-amount { accent-color: #ff4fd8; }
+  .snd-row .speed-val, .snd-row .snd-val { flex: 0 0 auto; width: 50px; text-align: center; padding: 3px 0; border-radius: 4px; background: #061206; border: 1px solid #1d3a1d;
+    font-family: 'Courier New', monospace; font-size: 13px; font-weight: 900; }
+  .snd-row .snd-val { color: #ff9be6; text-shadow: 0 0 6px rgba(255,79,216,0.6); background: #16060f; border-color: #3a1d33; }
+  .controls-layout #btn-stop.pkey-stop { /* 共通の赤い STOP 指定を打ち消して、ほかのキーと同じ素材に（上端の赤線で区別） */
+    background: linear-gradient(to bottom, #3b3e43 0%, #25272b 60%, #1b1c1f 100%) !important;
+    border: 1px solid #5b6068 !important; border-top: 3px solid #ff3a3a !important; border-bottom: 6px solid #0a0b0c !important; color: #ececec !important; }
+  .controls-layout #btn-stop.pkey-stop:active { border-bottom-width: 3px !important; }
+  .ctl-mode { display: flex; flex-direction: column; }
+  .ctl-mode .ctl-toggles { flex: 1 1 auto; align-items: center; }
+  .snd-spacer { flex: 0 0 auto; width: 30px; }
+  .snd-row .speed-reset { flex: 0 0 30px; width: 30px; height: 28px; padding: 0; color: #e6e6e6; background: linear-gradient(to bottom, #34373c, #1e2023); border: 1px solid #555a61; border-bottom: 3px solid #0a0b0c; }
+  @media (max-width: 640px) {
+    .ctl-keys { grid-template-columns: repeat(6, 1fr); gap: 4px; }
+    .ctl-sep { display: none; }
+    .pkey { height: 56px; font-size: 9.5px; }
+    .pkey b { font-size: 15px; }
+    .pkey-track { grid-column: span 3; height: 42px; flex-direction: row; gap: 8px; font-size: 11px; }
+    .ctl-lower { flex-direction: column; }
+    .snd-name, .snd-row .tog-btn { width: 116px; flex-basis: 116px; }
+    .snd-row .tog-btn { font-size: 10px; gap: 5px; }
   }
-  .controls-layout #btn-top:active, .controls-layout #btn-pause:active, .controls-layout #btn-rew:active, .controls-layout #btn-ff:active,
-  .controls-layout #btn-prev-song:active, .controls-layout #btn-next-song:active { border-bottom: 1px solid #0e1f36; }
+  /* [変更] 録音コントロールエリア：STEP 1〜4 のグループ（案A のトーン）・エフェクターは周囲と同じ素材・液晶はオレンジのバックライト */
+  .rec-panel { gap: 10px !important; }
+  .rec-grp { display: flex; flex-direction: column; gap: 8px; }
+  .rec-grp > .ctl-glabel { margin-bottom: 0; flex-wrap: wrap; }
+  .ctl-glabel.g-amber { color: #ffc46b; } .ctl-glabel.g-red { color: #ff8a8a; }
+  .rec-step { margin-left: auto; font-size: 9px; letter-spacing: 1px; border: 1px solid currentColor; border-radius: 9px; padding: 1px 8px; opacity: 0.8; }
+  .rec-grp .fx-model { color: #9aa0a8; font-size: 9px; letter-spacing: 1.5px; }
+  .rec-grp .fx-mon { margin-left: 10px; letter-spacing: 0; font-size: 11px; }
+  .rec-panel .rec-grp .btn, .rec-panel .rec-grp .btn-rec-stop {
+    background: linear-gradient(to bottom, #34373c, #1e2023) !important; border: 1px solid #555a61 !important; border-bottom: 3px solid #0a0b0c !important;
+    color: #e8e8e8 !important; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+  .rec-panel .rec-grp .btn:active, .rec-panel .rec-grp .btn-rec-stop:active { border-bottom-width: 1px !important; transform: translateY(2px); }
+  .rec-main { flex-wrap: nowrap !important; }
+  .rec-panel .rec-grp .btn-rec, .rec-panel .rec-grp .btn-rec-stop { flex: 1 1 0; height: 46px; justify-content: center; font-size: 14px; font-weight: 900; }
+  .rec-panel .rec-grp .btn-rec { background: linear-gradient(to bottom, #34373c, #1e2023); border: 1px solid #555a61; border-top: 3px solid #ff3a3a; border-bottom: 4px solid #0a0b0c; color: #fff; }
+  .rec-panel .rec-grp .btn-rec.armed, .rec-panel .rec-grp .btn-rec.recording { background: linear-gradient(to bottom, #d93030, #7a0c0c); border-color: #ff9c9c; border-bottom-color: #4a0606; }
+  .rec-grp .take-row { display: flex; gap: 6px; }
+  .rec-grp .take-unit { flex: 1 1 0; }
+  .rec-panel .rec-grp .take-btn { flex: 1 1 auto; height: 32px; justify-content: center; }
+  .rec-grp .take-clear { background: linear-gradient(to bottom, #34373c, #1e2023); color: #cfcfcf; border: 1px solid #555a61; border-bottom: 3px solid #0a0b0c; }
+  .rec-grp .rec-status { margin: 0 2px; }
+  .rec-grp .rec-timeline { flex: 1 1 auto; }
+  .rec-grp .mic-row { border-top: none; padding-top: 0; }
+  .rec-grp .mic-gain input, .rec-grp .rec-monitor input, #mic-gain, #latency-slider { accent-color: #e0b35a; }
+  .rec-grp .mic-gain b { font-family: 'Courier New', monospace; font-size: 12px; color: #39ff5a; background: #061206; border: 1px solid #1d3a1d; border-radius: 4px; padding: 2px 4px; width: auto; min-width: 48px; text-align: center; }
+  .rec-grp .mic-gain.latency { flex: 1 1 240px; } .rec-grp .mic-gain.latency input { flex: 1 1 auto; width: auto; }
+  .rec-grp .seg { border-color: #555a61; border-radius: 5px; }
+  .rec-grp .seg-btn { background: #17181a; color: #bbb; padding: 6px 10px; font-size: 10.5px; }
+  .rec-grp .seg-btn.active { background: linear-gradient(to bottom, #ffc46b, #e09a2e); color: #1a1206; }
+  .ls-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .rec-panel .rec-grp .ls-row > .btn { width: 104px; height: 36px; justify-content: center; font-size: 12px; }
+  .ls-row .fx-sel-label { margin-left: 6px; color: #9aa0a8; font-size: 10px; }
+  .ls-note { font-size: 10.5px; color: #9aa0a8; font-weight: 700; }
+  /* VOICE FX：周囲と同じ素材に */
+  .rec-grp .fx-panel { background: none; border: none; box-shadow: none; padding: 0; }
+  .rec-grp .fx-rivet { display: none; }
+  .rec-grp .fx-body { gap: 18px; }
+  .rec-grp .fx-lcd { flex: 0 0 290px; min-width: 0; width: 290px; height: 62px; display: flex; flex-direction: column; justify-content: space-between;
+    background: linear-gradient(to bottom, #ffc56a, #ff9d2e); color: #1a0f02; text-shadow: none; border: 2px solid #1a1206; border-radius: 5px;
+    box-shadow: inset 0 0 12px rgba(120,50,0,0.55), 0 0 10px rgba(255,160,60,0.25); }
+  .rec-grp .fx-lcd-row { font-size: 13px; } .rec-grp .fx-lcd-row #fx-lcd-1b { font-size: 10px; opacity: 0.75; align-self: center; }
+  .rec-grp .fx-lcd-row.l2 { color: #1a0f02; font-size: 10px; margin-top: 0; }
+  .ls-voice { display: inline-flex; align-items: center; gap: 6px; }
+  .rec-grp #listen-mode, .rec-grp #save-mode { min-width: 196px; } .rec-grp #listen-mode .seg-btn, .rec-grp #save-mode .seg-btn { flex: 1 1 0; }
+  .rec-grp .fx-slots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+  .rec-grp .fx-slot { border: 1px solid #555a61; border-bottom: 3px solid #0a0b0c; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+  .rec-grp .fx-power, .rec-grp .fx-name { background: linear-gradient(to bottom, #34373c, #1e2023); }
+  .rec-grp .fx-name { border-left: 1px solid #0a0b0c; color: #e0e0e0; }
+  .rec-grp .fx-slot.on .fx-power::after { background: #39ff5a; box-shadow: 0 0 8px #39ff5a; }
+  .rec-grp .fx-slot.selected { border-bottom-color: #ff9d2e; box-shadow: inset 0 -2px 0 #ff9d2e, 0 0 8px rgba(255,157,46,0.25); }
+  .rec-grp .fx-slot.selected .fx-name { color: #ffc46b; background: linear-gradient(to bottom, #3a3228, #1f1a14); }
+  .rec-grp .fx-preset { border-radius: 12px; background: #17181a; border-color: #4a4e55; }
+  .rec-grp .fx-preset.active { color: #ffc46b; border-color: #ff9d2e; box-shadow: 0 0 6px rgba(255,157,46,0.4); }
+  @media (max-width: 640px) {
+    .rec-grp .fx-lcd { flex: 1 1 100%; width: 100%; }
+    .rec-grp .fx-knobs { width: 100%; justify-content: center; gap: 30px; }
+    .rec-grp .fx-slots { grid-template-columns: repeat(3, 1fr); }
+    .rec-panel .rec-grp .ls-row > .btn { width: 92px; }
+    .rec-grp .fx-mon { margin-left: 0; width: 100%; order: 5; }
+  }
+  /* [変更] テイクのクリアボタン */
+  .take-unit { display: inline-flex; align-items: stretch; gap: 2px; }
+  .take-clear { flex: 0 0 auto; min-width: 24px; padding: 0 6px; border-radius: 4px; cursor: pointer; font-weight: 900; font-size: 11px;
+    background: linear-gradient(to bottom, #b4b8bd, #7d8288); color: #121314; border: 1px solid #d9dde1; border-bottom: 3px solid #3b3e42; }
+  .take-clear:active { border-bottom-width: 1px; transform: translateY(2px); }
+  .take-clear:disabled { opacity: 0.35; cursor: default; }
+  /* [変更] ダイアグラム表示ボタン（録音コントロールエリアの右上）と表示ウィンドウ */
+  .rec-panel > .diag-open-btn { position: absolute !important; top: 4px; right: 10px; z-index: 13; padding: 3px 9px; border-radius: 4px; cursor: pointer;
+    font-size: 11px; font-weight: 900; color: #e8f2ff; background: linear-gradient(to bottom, #3f5f86, #22384f); border: 1px solid #7fa8d6; }
+  .rec-panel.panel-collapsible.collapsed > .diag-open-btn { display: inline-block !important; }
+  .rec-panel.panel-collapsible > .area-label { right: 130px; }
+  .diag-backdrop { position: fixed; inset: 0; z-index: 3000; background: rgba(0,0,0,0.78); display: none; align-items: center; justify-content: center; padding: 12px; }
+  .diag-backdrop.show { display: flex; }
+  .diag-card { background: #15171a; border: 1px solid #555; border-radius: 10px; width: min(1160px, 100%); max-height: 100%; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+  .diag-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; border-bottom: 1px solid #333; color: #fff; font-weight: 900; font-size: 14px; }
+  .diag-x { background: #333; color: #fff; border: 1px solid #666; border-radius: 4px; width: 32px; height: 32px; font-size: 16px; cursor: pointer; flex-shrink: 0; }
+  .diag-body { overflow: auto; padding: 10px; -webkit-overflow-scrolling: touch; }
+  .diag-body .diag-svg { display: block; width: 100%; min-width: 820px; height: auto; }
+  .diag-foot { display: flex; justify-content: flex-end; padding: 8px 14px 12px; border-top: 1px solid #333; }
+  .diag-close { background: linear-gradient(to bottom, #b4b8bd, #7d8288); color: #121314; border: 1px solid #d9dde1; border-bottom: 3px solid #3b3e42; border-radius: 5px; padding: 8px 22px; font-weight: 900; cursor: pointer; }
+  .diag-hint { display: none; color: #bfc5cc; font-size: 11px; text-align: center; padding: 6px 0 0; }
+  @media (max-width: 900px) { .diag-hint { display: block; } }
+  @media (max-width: 640px) { .rec-panel > .diag-open-btn { font-size: 10px; padding: 3px 6px; } .rec-panel.panel-collapsible > .area-label { right: 110px; } }
 </style>
 </head>
 <body class="theme-brass"><!-- [変更] 初期テーマ MIDNIGHT BRASS -->
@@ -1259,43 +1393,45 @@
     <div class="controls-layout">
       <div class="amber-glow-screen"></div>
       <span class="area-label">▶ 再生コントロールエリア</span><!-- [変更] -->
-      <div class="play-col">
-        <div class="play-stop-row">
-          <button class="btn-play-mega" id="btn-play">
-            <span>▶ PLAY</span>
-            <div class="led-lamp" id="led-play"></div>
-          </button>
-          <button class="btn-play-mega btn-stop-mega" id="btn-stop"><span>■ STOP</span></button><!-- [変更] PLAY の右に大きな STOP -->
+      <div class="deck-ctl"><!-- [変更] 再生コントロールを意味でグループ分け（案B＋LED のレイアウト・案A のトーン） -->
+        <div class="ctl-grp ctl-transport">
+          <div class="ctl-glabel g-blue"><i></i>TRANSPORT<small>再生操作</small></div>
+          <div class="ctl-keys">
+            <button class="pkey" id="btn-top"><b>⏮</b><span>TOP</span></button>
+            <button class="pkey" id="btn-rew"><b>⏪</b><span>REW</span></button>
+            <button class="pkey pkey-play" id="btn-play"><b>▶</b><span>PLAY</span><div class="led-lamp" id="led-play"></div></button>
+            <button class="pkey pkey-pause" id="btn-pause"><b>❚❚</b><span>PAUSE</span><div class="led-lamp" id="led-pause"></div></button>
+            <button class="pkey" id="btn-ff"><b>⏩</b><span>FF</span></button>
+            <button class="pkey pkey-stop" id="btn-stop"><b>■</b><span>STOP</span></button>
+            <span class="ctl-sep"></span>
+            <button class="pkey pkey-track" id="btn-prev-song"><b>⏮</b><span>前の曲</span></button>
+            <button class="pkey pkey-track" id="btn-next-song"><b>⏭</b><span>次の曲</span></button>
+          </div>
         </div>
-        <div class="speed-box"><!-- [変更] 再生スピード（音程は変えない）：PLAY/STOP の下にコンパクトに -->
-          <span class="speed-label">⏩</span>
-          <input type="range" id="speed-slider" min="0.5" max="2.0" step="0.1" value="1.0">
-          <b class="speed-val" id="speed-val">1.0x</b>
-          <button class="speed-reset" id="btn-speed-reset">↺</button>
-        </div>
-      </div>
-
-      <div class="btn-group-right">
-        <div class="btn-row"><!-- [変更] 前の曲・次の曲 -->
-          <button class="btn" id="btn-prev-song">⏮ 前の曲</button>
-          <button class="btn" id="btn-next-song">次の曲 ⏭</button>
-        </div>
-        <div class="btn-row">
-          <button class="btn" id="btn-top">⏮ TOP</button>
-          <button class="btn" id="btn-pause">❚❚ PAUSE<div class="led-lamp" id="led-pause"></div></button>
-        </div>
-        <div class="btn-row">
-          <button class="btn" id="btn-rew">⏪ REW</button>
-          <button class="btn" id="btn-ff">⏩ FF</button>
-          <button class="btn" id="btn-repeat">🔁 REPEAT<div class="led-lamp" id="led-repeat"></div></button>
-        </div>
-        <div class="btn-row"><!-- [変更] 連続再生（順番／ランダム） -->
-          <button class="btn" id="btn-cont-seq">⏭ 連続再生<div class="led-lamp" id="led-cont-seq"></div></button>
-          <button class="btn" id="btn-cont-rnd">🔀 ランダム連続<div class="led-lamp" id="led-cont-rnd"></div></button>
-        </div>
-        <div class="btn-row karaoke-row"><!-- [変更] カラオケ（ボーカル除去） -->
-          <button class="btn karaoke-btn" id="btn-karaoke">🎤 KARAOKE<div class="led-lamp" id="led-karaoke"></div></button>
-          <label class="karaoke-amt">ボーカル除去 <input type="range" id="karaoke-amount" min="0" max="100" value="85" step="5"><b id="karaoke-val">85%</b></label>
+        <div class="ctl-lower">
+          <div class="ctl-grp ctl-mode">
+            <div class="ctl-glabel g-green"><i></i>PLAY MODE<small>再生モード</small></div>
+            <div class="ctl-toggles">
+              <button class="tog-btn" id="btn-repeat"><div class="led-lamp" id="led-repeat"></div>🔁 REPEAT</button>
+              <button class="tog-btn" id="btn-cont-seq"><div class="led-lamp" id="led-cont-seq"></div>⏭ 連続</button>
+              <button class="tog-btn" id="btn-cont-rnd"><div class="led-lamp" id="led-cont-rnd"></div>🔀 ランダム</button>
+            </div>
+          </div>
+          <div class="ctl-grp ctl-sound">
+            <div class="ctl-glabel g-pink"><i></i>SOUND<small>音の調整</small></div>
+            <div class="snd-row">
+              <span class="snd-name">⏩ SPEED</span>
+              <input type="range" id="speed-slider" min="0.5" max="2.0" step="0.1" value="1.0">
+              <b class="speed-val" id="speed-val">1.0x</b>
+              <button class="speed-reset" id="btn-speed-reset">↺</button>
+            </div>
+            <div class="snd-row">
+              <button class="tog-btn karaoke-btn" id="btn-karaoke"><div class="led-lamp" id="led-karaoke"></div>🎤 KARAOKE</button>
+              <input type="range" id="karaoke-amount" min="0" max="100" value="85" step="5">
+              <b class="snd-val" id="karaoke-val">85%</b>
+              <span class="snd-spacer"></span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1304,44 +1440,52 @@
     <div class="rec-panel panel-collapsible collapsed" id="rec-panel"><!-- [変更] 折りたたみ（初期はたたむ） -->
       <div class="amber-glow-screen"></div>
       <span class="area-label rec">● 録音コントロールエリア</span><!-- [変更] -->
-      <div class="rec-row">
-        <!-- [変更] 左上に緑の REC、その右に赤の REC STOP -->
-        <button class="btn-rec" id="btn-rec"><span class="rec-dot"></span><span id="btn-rec-label">REC</span></button>
-        <button class="btn-rec-stop" id="btn-rec-stop">■ REC STOP</button>
-        <span class="rec-title">● TAKES</span>
+      <button class="diag-open-btn" id="btn-diagram" type="button">📊 ダイアグラム</button><!-- [変更] ボタンと出力・録音の関係図 -->
+      <!-- [変更] 作業の順番（STEP 1〜4）で4つのグループに整理 -->
+      <div class="ctl-grp rec-grp">
+        <div class="ctl-glabel g-amber"><i></i>MIC SETUP<small>マイクの準備</small><span class="rec-step">STEP 1</span></div>
+        <div class="rec-row mic-row">
+          <button class="btn mic-btn" id="btn-mic">🎤 MIC<div class="led-lamp" id="led-mic"></div></button>
+          <div class="mic-meters">
+            <div class="mic-meter"><span>L</span><div class="mic-bar"><div class="mic-fill" id="mic-fill-l"></div></div></div>
+            <div class="mic-meter"><span>R</span><div class="mic-bar"><div class="mic-fill" id="mic-fill-r"></div></div></div>
+          </div>
+          <label class="mic-gain">IN <input type="range" id="mic-gain" min="0" max="1000" value="400" step="10"><b id="mic-gain-val">100%</b></label><!-- 内部の初期値(400)を 100% と表示 -->
+        </div>
+        <div class="rec-row">
+          <button class="btn" id="btn-calibrate">⏱ マイクと曲のずれ自動補正</button>
+          <label class="mic-gain latency">タイミング補正 <input type="range" id="latency-slider" min="-200" max="600" value="0" step="5"><b id="latency-val">0ms</b></label>
+        </div>
+        <div class="rec-row">
+          <label class="rec-monitor"><input type="checkbox" id="rec-monitor" checked> 🎧 自分の声を曲にミックスしてヘッドホンで聞く</label>
+        </div>
+      </div>
+
+      <div class="ctl-grp rec-grp">
+        <div class="ctl-glabel g-red"><i></i>RECORD<small>録音</small><span class="rec-step">STEP 2</span></div>
+        <div class="rec-row rec-main">
+          <button class="btn-rec" id="btn-rec"><span class="rec-dot"></span><span id="btn-rec-label">REC</span></button>
+          <button class="btn-rec-stop" id="btn-rec-stop">■ REC STOP</button>
+        </div>
         <div class="take-row">
-          <button class="btn take-btn" data-take="0">TAKE 1<div class="led-lamp"></div></button>
-          <button class="btn take-btn" data-take="1">TAKE 2<div class="led-lamp"></div></button>
-          <button class="btn take-btn" data-take="2">TAKE 3<div class="led-lamp"></div></button>
+          <span class="take-unit"><button class="btn take-btn" data-take="0">TAKE 1<div class="led-lamp"></div></button><button class="take-clear" data-take="0" type="button" title="TAKE 1 をクリア">✕</button></span>
+          <span class="take-unit"><button class="btn take-btn" data-take="1">TAKE 2<div class="led-lamp"></div></button><button class="take-clear" data-take="1" type="button" title="TAKE 2 をクリア">✕</button></span>
+          <span class="take-unit"><button class="btn take-btn" data-take="2">TAKE 3<div class="led-lamp"></div></button><button class="take-clear" data-take="2" type="button" title="TAKE 3 をクリア">✕</button></span>
+        </div>
+        <span class="rec-status" id="rec-status">REC で録音待機 → PLAY で演奏開始と同時に録音（最大3テイク）</span>
+        <div class="rec-row">
+          <span class="rec-tl-label" id="rec-tl-label">TAKE 1</span>
+          <div class="rec-timeline" id="rec-timeline">
+            <canvas class="rec-canvas" id="rec-canvas"></canvas><!-- 入力があった所を赤で表示 -->
+            <div class="rec-playhead" id="rec-playhead"></div>
+          </div>
         </div>
       </div>
-      <span class="rec-status" id="rec-status">REC で録音待機 → PLAY で演奏開始と同時に録音（最大3テイク）</span>
-      <div class="rec-row">
-        <span class="rec-tl-label" id="rec-tl-label">TAKE 1</span>
-        <div class="rec-timeline" id="rec-timeline">
-          <canvas class="rec-canvas" id="rec-canvas"></canvas><!-- [変更] 入力があった所を赤で表示 -->
-          <div class="rec-playhead" id="rec-playhead"></div>
-        </div>
-      </div>
-      <div class="rec-row">
-        <button class="btn" id="btn-take-listen">▶ LISTEN</button>
-        <div class="seg" id="listen-mode"><button class="seg-btn active" data-v="mix">曲＋録音</button><button class="seg-btn" data-v="voice">録音のみ</button></div>
-        <button class="btn" id="btn-take-save">💾 SAVE</button>
-        <div class="seg" id="save-mode"><button class="seg-btn active" data-v="mix">曲とミックス</button><button class="seg-btn" data-v="voice">録音のみ</button></div>
-      </div>
-      <div class="rec-row"><!-- [変更] 声を原音で聞く／保存するか、エフェクト付きか -->
-        <span class="fx-sel-label">🎤 LISTEN の声</span>
-        <div class="seg" id="listen-fx"><button class="seg-btn" data-v="raw">原音</button><button class="seg-btn active" data-v="fx">FX</button></div>
-        <span class="fx-sel-label">💾 SAVE の声</span>
-        <div class="seg" id="save-fx"><button class="seg-btn" data-v="raw">原音</button><button class="seg-btn active" data-v="fx">FX</button></div>
-      </div>
-      <!-- [変更] VOICE FX（デジタルエフェクター） -->
-      <div class="fx-panel">
-        <div class="fx-rivet tl"></div><div class="fx-rivet tr"></div><div class="fx-rivet bl"></div><div class="fx-rivet br"></div>
-        <div class="fx-head">
-          <span class="fx-brand">VOICE FX</span><span class="fx-model">DSP-5 DIGITAL MULTI EFFECTOR</span>
-          <label class="fx-mon"><input type="checkbox" id="fx-monitor" checked> 🎧 モニターにFX</label>
-        </div>
+
+      <div class="ctl-grp rec-grp">
+        <div class="ctl-glabel g-green"><i></i>VOICE FX<small>エフェクト</small><span class="fx-model">DSP-5</span>
+          <label class="fx-mon"><input type="checkbox" id="fx-monitor" checked> 🎧 モニターにFX</label><span class="rec-step">STEP 3</span></div>
+        <div class="fx-panel">
         <div class="fx-body">
           <div class="fx-lcd">
             <div class="fx-lcd-row"><span id="fx-lcd-1"></span><span id="fx-lcd-1b"></span></div>
@@ -1369,23 +1513,24 @@
           <button class="fx-preset" data-preset="DOUBLE">DOUBLE</button>
           <button class="fx-preset" data-preset="DRY">DRY</button>
         </div>
-      </div>
-      <div class="rec-row mic-row">
-        <!-- [変更] マイクレベル表示（その下に ずれ自動補正 → ヘッドホンモニター） -->
-        <button class="btn mic-btn" id="btn-mic">🎤 MIC<div class="led-lamp" id="led-mic"></div></button>
-        <div class="mic-meters">
-          <div class="mic-meter"><span>L</span><div class="mic-bar"><div class="mic-fill" id="mic-fill-l"></div></div></div>
-          <div class="mic-meter"><span>R</span><div class="mic-bar"><div class="mic-fill" id="mic-fill-r"></div></div></div>
         </div>
-        <label class="mic-gain">IN <input type="range" id="mic-gain" min="0" max="1000" value="400" step="10"><b id="mic-gain-val">100%</b></label><!-- [変更] 内部の初期値(400)を 100% と表示 -->
       </div>
-      <div class="rec-row">
-        <!-- [変更] タイミング自動測定と補正 -->
-        <button class="btn" id="btn-calibrate">⏱ マイクと曲のずれ自動補正</button>
-        <label class="mic-gain latency">タイミング補正 <input type="range" id="latency-slider" min="-200" max="600" value="0" step="5"><b id="latency-val">0ms</b></label>
-      </div>
-      <div class="rec-row">
-        <label class="rec-monitor"><input type="checkbox" id="rec-monitor" checked> 🎧 自分の声を曲にミックスしてヘッドホンで聞く</label>
+
+      <div class="ctl-grp rec-grp">
+        <div class="ctl-glabel g-blue"><i></i>LISTEN ・ SAVE<small>試聴・保存</small><span class="rec-step">STEP 4</span></div>
+        <div class="ls-row">
+          <button class="btn" id="btn-take-listen">▶ LISTEN</button>
+          <div class="seg" id="listen-mode"><button class="seg-btn active" data-v="mix">曲＋録音</button><button class="seg-btn" data-v="voice">録音のみ</button></div>
+          <div class="ls-voice"><span class="fx-sel-label">声</span>
+          <div class="seg" id="listen-fx"><button class="seg-btn" data-v="raw">原音</button><button class="seg-btn active" data-v="fx">FX</button></div></div>
+        </div>
+        <div class="ls-row">
+          <button class="btn" id="btn-take-save">💾 SAVE</button>
+          <div class="seg" id="save-mode"><button class="seg-btn active" data-v="mix">曲とミックス</button><button class="seg-btn" data-v="voice">録音のみ</button></div>
+          <div class="ls-voice"><span class="fx-sel-label">声</span>
+          <div class="seg" id="save-fx"><button class="seg-btn" data-v="raw">原音</button><button class="seg-btn active" data-v="fx">FX</button></div></div>
+        </div>
+        <div class="ls-note">保存形式：MP3（曲名_TakeN.mp3）／ 声を FX にすると VOICE FX の設定で書き出します</div>
       </div>
     </div>
 
@@ -2749,6 +2894,7 @@
       led.classList.toggle('led-take-rec', !!(recState && recState.t === i));
     });
     document.getElementById('rec-tl-label').innerText = `TAKE ${selectedTake + 1}`;
+    refreshClearBtns(); // [変更] クリアボタンの有効／無効
     document.getElementById('rec-panel').classList.toggle('rec-live', !!recState || recArmed); // [変更] たたんでいても録音中が分かる
     recBtn.classList.toggle('armed', recArmed && !recState);
     recBtn.classList.toggle('recording', !!recState);
@@ -2795,6 +2941,7 @@
       alert('このブラウザは録音に対応していません。'); return;
     }
     const t = selectedTake; // [変更] 選択中のテイクに録音（STOP→REC でも同じテイクのまま）
+    if (takes[t] && !confirm(`TAKE ${t + 1} にはすでに録音があります。上書きして録音しますか？\n（元の録音は消えます）`)) return; // [変更] 上書き確認
     try { setRecStatus('マイクの使用許可を待っています…'); await ensureMic(); }
     catch (e) {
       setRecStatus('マイクが許可されなかったため録音できません');
@@ -4103,6 +4250,48 @@
     } catch (e) {}
   }
   ['btn-mode-inline', 'btn-mode-fullscreen'].forEach(id => document.getElementById(id).addEventListener('click', () => { try { speechSynthesis.cancel(); } catch (e) {} }));
+
+
+  // [変更] テイクのクリア（確認ダイアログ付き）
+  function refreshClearBtns() {
+    document.querySelectorAll('.take-clear').forEach(b => {
+      const i = parseInt(b.dataset.take, 10);
+      b.disabled = !takes[i] || !!(recState && recState.t === i);
+    });
+  }
+  document.querySelectorAll('.take-clear').forEach(b => {
+    b.onclick = e => {
+      e.stopPropagation();
+      const i = parseInt(b.dataset.take, 10);
+      if (!takes[i]) { setRecStatus(`TAKE ${i + 1} はまだ録音されていません`); return; }
+      if (recState && recState.t === i) { setRecStatus('録音中のテイクはクリアできません'); return; }
+      if (!confirm(`TAKE ${i + 1} の録音を消去しますか？\n（元に戻せません。残す場合は先に 💾 SAVE してください）`)) return;
+      if (listening && selectedTake === i) stopTakeListen();
+      if (takes[i].url) URL.revokeObjectURL(takes[i].url);
+      takes[i] = null;
+      refreshTakeUI();
+      setRecStatus(`TAKE ${i + 1} をクリアしました`);
+    };
+  });
+  refreshClearBtns();
+  UI_TIPS.push(['.take-clear', 'このテイクの録音を消去します（確認ダイアログが出ます）']);
+
+  // [変更] ダイアグラム（再生エリア・録音エリアの各ボタンと、出力・録音の関係図）
+  document.body.insertAdjacentHTML('beforeend', `<div class="diag-backdrop" id="diag-modal" role="dialog" aria-modal="true" aria-label="ボタンと出力・録音の関係図">
+    <div class="diag-card">
+      <div class="diag-head"><span>📊 ボタンと出力・録音の関係（ダイアグラム）</span><button class="diag-x" id="diag-x" type="button" aria-label="閉じる">✕</button></div>
+      <div class="diag-hint">← 図は横にスクロールできます →</div><div class="diag-body"><svg class="diag-svg" viewBox="0 0 1100 780" xmlns="http://www.w3.org/2000/svg" font-family="'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN','Meiryo',sans-serif" role="img" aria-label="再生・録音の信号の流れ"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#e8e8e8"/></marker></defs><rect width="1100" height="780" rx="10" fill="#101215"/><text x="24" y="62" font-size="15" font-weight="900" fill="#9fd0ff">① 再生エリア（曲を聴く）</text><line x1="24" y1="70" x2="1076" y2="70" stroke="#9fd0ff" stroke-opacity=".35" stroke-width="1"/><rect x="24" y="90" width="160" height="66" rx="8" fill="#2a2d33" stroke="#c9cdd2" stroke-width="1.6"/><text x="104.0" y="119.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">曲ファイル</text><text x="104.0" y="136.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">（デッキのカセット）</text><rect x="224" y="90" width="170" height="66" rx="8" fill="#1b324f" stroke="#8fbbef" stroke-width="1.6"/><text x="309.0" y="119.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">SPEED</text><text x="309.0" y="136.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">0.5〜2.0倍・音程そのまま</text><rect x="434" y="90" width="170" height="66" rx="8" fill="#1b324f" stroke="#8fbbef" stroke-width="1.6"/><text x="519.0" y="119.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">KARAOKE</text><text x="519.0" y="136.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">ボーカル除去（強さ %）</text><rect x="644" y="90" width="190" height="66" rx="8" fill="#1b324f" stroke="#8fbbef" stroke-width="1.6"/><text x="739.0" y="119.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">10-BAND EQ</text><text x="739.0" y="136.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">L↓L↑M↓M↑H↓H↑・スライダー</text><rect x="874" y="90" width="202" height="66" rx="8" fill="#3d3010" stroke="#f0c060" stroke-width="1.6"/><text x="975.0" y="119.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">🔊 スピーカー／🎧</text><text x="975.0" y="136.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">ヘッドホンへ出力</text><line x1="184" y1="123.0" x2="220" y2="123.0" stroke="#e8e8e8" stroke-width="2" marker-end="url(#ah)"/><line x1="394" y1="123.0" x2="430" y2="123.0" stroke="#e8e8e8" stroke-width="2" marker-end="url(#ah)"/><line x1="604" y1="123.0" x2="640" y2="123.0" stroke="#e8e8e8" stroke-width="2" marker-end="url(#ah)"/><line x1="834" y1="123.0" x2="870" y2="123.0" stroke="#e8e8e8" stroke-width="2" marker-end="url(#ah)"/><rect x="24" y="190" width="330" height="50" rx="8" fill="#23262b" stroke="#9aa0a8" stroke-width="1.6"/><text x="189.0" y="211.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">PLAY・STOP・PAUSE・TOP・REW・FF</text><text x="189.0" y="228.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">再生／停止・再生位置の操作</text><rect x="374" y="190" width="330" height="50" rx="8" fill="#23262b" stroke="#9aa0a8" stroke-width="1.6"/><text x="539.0" y="211.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">前の曲・次の曲・REPEAT・連続・ランダム</text><text x="539.0" y="228.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">曲の切り替え・続けて／繰り返し再生</text><rect x="724" y="190" width="352" height="50" rx="8" fill="#23262b" stroke="#9aa0a8" stroke-width="1.6"/><text x="900.0" y="211.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">VU メーター・EQ メーター</text><text x="900.0" y="228.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">出力の大きさを表示（音は変えない）</text><line x1="120" y1="190" x2="120" y2="160" stroke="#9aa0a8" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ah)"/><polyline points="539,190 539,176 150,176 150,160" fill="none" stroke="#9aa0a8" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ah)"/><line x1="900" y1="160" x2="900" y2="188" stroke="#9aa0a8" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ah)"/><text x="24" y="292" font-size="15" font-weight="900" fill="#ff9a9a">② 録音エリア（歌っているとき）</text><line x1="24" y1="300" x2="1076" y2="300" stroke="#ff9a9a" stroke-opacity=".35" stroke-width="1"/><rect x="24" y="320" width="140" height="66" rx="8" fill="#2a2d33" stroke="#c9cdd2" stroke-width="1.6"/><text x="94.0" y="349.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">🎤 マイク</text><text x="94.0" y="366.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">（MIC ボタンで ON）</text><rect x="204" y="320" width="190" height="66" rx="8" fill="#4a1b1b" stroke="#ff8a8a" stroke-width="1.6"/><text x="299.0" y="349.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">IN（入力レベル）</text><text x="299.0" y="366.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">MIC メーター L/R</text><rect x="454" y="320" width="300" height="66" rx="8" fill="#4a1b1b" stroke="#ff8a8a" stroke-width="1.6"/><text x="604.0" y="349.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">● REC ／ ■ REC STOP</text><text x="604.0" y="366.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">TAKE 1〜3 に録音（エフェクトなしの原音）</text><rect x="454" y="412" width="300" height="66" rx="8" fill="#1b324f" stroke="#8fbbef" stroke-width="1.6"/><text x="604.0" y="441.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">🎧 自分の声を曲にミックスして</text><text x="604.0" y="458.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">ヘッドホンで聞く（ON のとき）</text><rect x="794" y="412" width="150" height="66" rx="8" fill="#173a22" stroke="#7dff6a" stroke-width="1.6"/><text x="869.0" y="441.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">VOICE FX</text><text x="869.0" y="458.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">🎧 モニターにFX ON</text><rect x="974" y="412" width="102" height="66" rx="8" fill="#3d3010" stroke="#f0c060" stroke-width="1.6"/><text x="1025.0" y="441.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">🎧</text><text x="1025.0" y="458.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">ヘッドホン</text><line x1="164" y1="353.0" x2="200" y2="353.0" stroke="#e8e8e8" stroke-width="2" marker-end="url(#ah)"/><line x1="394" y1="353.0" x2="450" y2="353.0" stroke="#e8e8e8" stroke-width="2" marker-end="url(#ah)"/><polyline points="394,353.0 424,353 424,445 450,445" fill="none" stroke="#e8e8e8" stroke-width="2" marker-end="url(#ah)"/><line x1="754" y1="445.0" x2="790" y2="445.0" stroke="#e8e8e8" stroke-width="2" marker-end="url(#ah)"/><line x1="944" y1="445.0" x2="970" y2="445.0" stroke="#e8e8e8" stroke-width="2" marker-end="url(#ah)"/><polyline points="604,478 604,494 1025,494 1025,482" fill="none" stroke="#bfc5cc" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ah)"/><text x="815" y="508" font-size="11" fill="#bfc5cc" text-anchor="middle">モニターにFX が OFF のときは原音で聞こえる</text><text x="604" y="404" font-size="11" fill="#ffb0b0" text-anchor="middle">REC を押すと SPEED は 1.0 倍に戻る／PLAY と同時に録音開始</text><text x="24" y="548" font-size="15" font-weight="900" fill="#f0c060">③ 試聴（LISTEN）・保存（SAVE）</text><line x1="24" y1="556" x2="1076" y2="556" stroke="#f0c060" stroke-opacity=".35" stroke-width="1"/><rect x="24" y="578" width="150" height="66" rx="8" fill="#4a1b1b" stroke="#ff8a8a" stroke-width="1.6"/><text x="99.0" y="607.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">選択中の TAKE</text><text x="99.0" y="624.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">（TAKE 1〜3）</text><rect x="204" y="578" width="180" height="66" rx="8" fill="#4a1b1b" stroke="#ff8a8a" stroke-width="1.6"/><text x="294.0" y="607.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">タイミング補正（ms）</text><text x="294.0" y="624.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">⏱ 自動補正で自動設定</text><rect x="414" y="578" width="200" height="66" rx="8" fill="#173a22" stroke="#7dff6a" stroke-width="1.6"/><text x="514.0" y="607.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">LISTEN の声／SAVE の声</text><text x="514.0" y="624.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">原音 か FX（VOICE FX）</text><rect x="644" y="578" width="190" height="66" rx="8" fill="#1b324f" stroke="#8fbbef" stroke-width="1.6"/><text x="739.0" y="607.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">曲＋録音 ／ 録音のみ</text><text x="739.0" y="624.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">曲とミックス ／ 録音のみ</text><rect x="624" y="676" width="230" height="58" rx="8" fill="#2a2d33" stroke="#c9cdd2" stroke-width="1.6"/><text x="739.0" y="701.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">曲ファイル</text><text x="739.0" y="718.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">KARAOKE は反映／EQ・SPEED なし</text><rect x="874" y="566" width="202" height="44" rx="8" fill="#3d3010" stroke="#f0c060" stroke-width="1.6"/><text x="975.0" y="593.0" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">▶ LISTEN → 🔊 試聴</text><rect x="874" y="618" width="202" height="58" rx="8" fill="#3d3010" stroke="#f0c060" stroke-width="1.6"/><text x="975.0" y="643.5" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">💾 SAVE → MP3 ファイル</text><text x="975.0" y="660.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#d6dbe2">曲名_TakeN.mp3</text><line x1="174" y1="611.0" x2="200" y2="611.0" stroke="#e8e8e8" stroke-width="2" marker-end="url(#ah)"/><line x1="384" y1="611.0" x2="410" y2="611.0" stroke="#e8e8e8" stroke-width="2" marker-end="url(#ah)"/><line x1="614" y1="611.0" x2="640" y2="611.0" stroke="#e8e8e8" stroke-width="2" marker-end="url(#ah)"/><line x1="739" y1="676" x2="739" y2="648" stroke="#e8e8e8" stroke-width="2" marker-end="url(#ah)"/><polyline points="834,611.0 854,611 854,588 870,588" fill="none" stroke="#e8e8e8" stroke-width="2" marker-end="url(#ah)"/><polyline points="834,611.0 854,611 854,647 870,647" fill="none" stroke="#e8e8e8" stroke-width="2" marker-end="url(#ah)"/><rect x="24" y="748" width="16" height="14" rx="3" fill="#2a2d33" stroke="#c9cdd2"/><text x="46" y="760" font-size="12" fill="#d6dbe2">音の元</text><rect x="111" y="748" width="16" height="14" rx="3" fill="#1b324f" stroke="#8fbbef"/><text x="133" y="760" font-size="12" fill="#d6dbe2">再生・ミックス</text><rect x="250" y="748" width="16" height="14" rx="3" fill="#4a1b1b" stroke="#ff8a8a"/><text x="272" y="760" font-size="12" fill="#d6dbe2">録音</text><rect x="324" y="748" width="16" height="14" rx="3" fill="#173a22" stroke="#7dff6a"/><text x="346" y="760" font-size="12" fill="#d6dbe2">エフェクト</text><rect x="437" y="748" width="16" height="14" rx="3" fill="#3d3010" stroke="#f0c060"/><text x="459" y="760" font-size="12" fill="#d6dbe2">出力（音・ファイル）</text><rect x="615" y="748" width="16" height="14" rx="3" fill="#23262b" stroke="#9aa0a8"/><text x="637" y="760" font-size="12" fill="#d6dbe2">操作ボタン</text><text x="738" y="760" font-size="12" fill="#bfc5cc">── 音の流れ　- - - 操作・表示</text></svg></div>
+      <div class="diag-foot"><button class="diag-close" id="diag-close" type="button">閉じる</button></div>
+    </div>
+  </div>`);
+  const diagModal = document.getElementById('diag-modal');
+  const closeDiagram = () => diagModal.classList.remove('show');
+  document.getElementById('btn-diagram').onclick = e => { e.stopPropagation(); diagModal.classList.add('show'); };
+  document.getElementById('diag-x').onclick = closeDiagram;
+  document.getElementById('diag-close').onclick = closeDiagram;
+  diagModal.addEventListener('click', e => { if (e.target === diagModal) closeDiagram(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDiagram(); });
+  UI_TIPS.push(['#btn-diagram', '再生エリア・録音エリアの各ボタンと、音の出力・録音の関係を図で表示します']);
 
   window.onload = loadLibrary;
 </script>
