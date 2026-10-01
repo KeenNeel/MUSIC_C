@@ -4018,11 +4018,14 @@
     if (!audioEl.paused || !videoEl.paused || recState || listening || calibrating) return;
     if (e && e.target && e.target.closest && e.target.closest('#btn-play, #btn-take-listen, #btn-rec, #btn-calibrate, .pb-btn')) return;
     bgPrimed = true;
-    // [変更] 曲が入っていればその曲で準備（読み込み済みにしておくと画面ロック時にすぐ引き継げる）
-    bgAudio.src = (currentMedia === audioEl && (audioEl.currentSrc || audioEl.src)) || makeSilentWavUrl();
-    bgAudio.muted = true;
-    bgAudio.play().then(() => { bgAudio.pause(); bgAudio.muted = false; try { bgAudio.currentTime = 0; } catch (e) {} })
-      .catch(() => { bgPrimed = false; bgAudio.muted = false; });
+    // [変更] 無音を（消音にせず）一度鳴らして使えるようにし、そのあと曲を先に読み込んでおく
+    bgAudio.muted = false;
+    bgAudio.src = makeSilentWavUrl();
+    bgAudio.play().then(() => {
+      bgAudio.pause();
+      const src = currentMedia === audioEl && (audioEl.currentSrc || audioEl.src);
+      if (src && !bgActive) { bgAudio.src = src; try { bgAudio.load(); } catch (e) {} }
+    }).catch(() => { bgPrimed = false; });
   }
   document.addEventListener('touchend', primeBgAudio, true);
   document.addEventListener('click', primeBgAudio, true);
@@ -4031,37 +4034,37 @@
       && !recState && !recArmed && !listening && !calibrating;
   }
   // [変更] 画面ロック直後は JavaScript がすぐ止められるため、読み込み完了を待たずにその場で play() を呼ぶ。
-  //        位置合わせ（シーク）は読み込み後に行い、それまでは消音しておく
+  //        iPhone は「消音で始めて後から消音解除」すると再生を止めてしまうため、消音は使わない。
+  //        未読み込みのときは URL に開始位置（#t=秒）を付けて、その位置から鳴らす
   function startBgPlayback() {
     const src = audioEl.currentSrc || audioEl.src;
     const t0 = audioEl.currentTime, startedAt = performance.now();
     const token = ++bgToken;
-    if (bgAudio.src !== src) bgAudio.src = src;
+    const base = u => String(u || '').split('#')[0];
+    bgAudio.muted = false;
     bgAudio.loop = isRepeat;
-    bgAudio.defaultPlaybackRate = playSpeed; bgAudio.playbackRate = playSpeed;
     const target = () => t0 + (performance.now() - startedAt) / 1000 * playSpeed;
-    const ready = bgAudio.readyState >= 1;
-    if (ready) { try { bgAudio.currentTime = t0; } catch (e) {} }
-    bgAudio.muted = !ready;
-    const unmute = () => { if (token === bgToken) bgAudio.muted = false; };
-    if (!ready) {
+    if (base(bgAudio.src) === base(src) && bgAudio.readyState >= 1) {
+      try { bgAudio.currentTime = t0; } catch (e) {}
+    } else {
+      bgAudio.src = base(src) + '#t=' + t0.toFixed(2);
       bgAudio.addEventListener('loadedmetadata', () => {
         if (token !== bgToken) return;
-        bgAudio.addEventListener('seeked', unmute, { once: true });
-        try { bgAudio.currentTime = target(); } catch (e) { unmute(); }
+        const want = target();
+        if (Math.abs(bgAudio.currentTime - want) > 0.8) { try { bgAudio.currentTime = want; } catch (e) {} }
       }, { once: true });
-      setTimeout(unmute, 2500); // 念のため
     }
+    bgAudio.defaultPlaybackRate = playSpeed; bgAudio.playbackRate = playSpeed;
     bgAudio.play().then(() => {
-      if (token !== bgToken || !document.hidden) { bgAudio.pause(); bgAudio.muted = false; return; } // 引き継ぎ完了前に復帰した場合は元のまま
+      if (token !== bgToken || !document.hidden) { bgAudio.pause(); return; } // 引き継ぎ完了前に復帰した場合は元のまま
       bgActive = true; audioEl.pause(); setMediaSessionState();
-    }).catch(e => { bgAudio.muted = false; console.log('background handoff failed:', e); });
+    }).catch(e => console.log('background handoff failed:', e));
   }
   // [変更] 曲が読み込まれたら予備プレーヤーにも同じ曲を先に読み込ませておく
   audioEl.addEventListener('loadedmetadata', () => {
     if (!IS_IOS || bgActive || !bgAudio.paused) return;
     const src = audioEl.currentSrc || audioEl.src;
-    if (src && bgAudio.src !== src) { bgAudio.src = src; try { bgAudio.load(); } catch (e) {} }
+    if (src && String(bgAudio.src).split('#')[0] !== src) { bgAudio.src = src; try { bgAudio.load(); } catch (e) {} }
   });
   function endBgPlayback() {
     bgActive = false;
