@@ -4018,8 +4018,11 @@
     if (!audioEl.paused || !videoEl.paused || recState || listening || calibrating) return;
     if (e && e.target && e.target.closest && e.target.closest('#btn-play, #btn-take-listen, #btn-rec, #btn-calibrate, .pb-btn')) return;
     bgPrimed = true;
-    bgAudio.src = makeSilentWavUrl();
-    bgAudio.play().then(() => bgAudio.pause()).catch(() => { bgPrimed = false; });
+    // [変更] 曲が入っていればその曲で準備（読み込み済みにしておくと画面ロック時にすぐ引き継げる）
+    bgAudio.src = (currentMedia === audioEl && (audioEl.currentSrc || audioEl.src)) || makeSilentWavUrl();
+    bgAudio.muted = true;
+    bgAudio.play().then(() => { bgAudio.pause(); bgAudio.muted = false; try { bgAudio.currentTime = 0; } catch (e) {} })
+      .catch(() => { bgPrimed = false; bgAudio.muted = false; });
   }
   document.addEventListener('touchend', primeBgAudio, true);
   document.addEventListener('click', primeBgAudio, true);
@@ -4027,27 +4030,43 @@
     return IS_IOS && currentMedia === audioEl && isPlaying && !audioEl.paused && eqSources.has(audioEl)
       && !recState && !recArmed && !listening && !calibrating;
   }
+  // [変更] 画面ロック直後は JavaScript がすぐ止められるため、読み込み完了を待たずにその場で play() を呼ぶ。
+  //        位置合わせ（シーク）は読み込み後に行い、それまでは消音しておく
   function startBgPlayback() {
     const src = audioEl.currentSrc || audioEl.src;
-    const t = audioEl.currentTime;
+    const t0 = audioEl.currentTime, startedAt = performance.now();
+    const token = ++bgToken;
     if (bgAudio.src !== src) bgAudio.src = src;
     bgAudio.loop = isRepeat;
     bgAudio.defaultPlaybackRate = playSpeed; bgAudio.playbackRate = playSpeed;
-    const token = ++bgToken; // [変更]
-    const go = () => {
-      if (token !== bgToken || !document.hidden) return; // [変更] すでに画面に戻っていたら引き継がない
-      try { bgAudio.currentTime = t; } catch (e) {}
-      bgAudio.play().then(() => {
-        if (token !== bgToken || !document.hidden) { bgAudio.pause(); return; } // [変更] 引き継ぎ完了前に復帰した場合は元のまま
-        bgActive = true; audioEl.pause(); setMediaSessionState();
-      }).catch(e => console.log('background handoff failed:', e));
-    };
-    if (bgAudio.readyState >= 1) go(); else bgAudio.addEventListener('loadedmetadata', go, { once: true });
+    const target = () => t0 + (performance.now() - startedAt) / 1000 * playSpeed;
+    const ready = bgAudio.readyState >= 1;
+    if (ready) { try { bgAudio.currentTime = t0; } catch (e) {} }
+    bgAudio.muted = !ready;
+    const unmute = () => { if (token === bgToken) bgAudio.muted = false; };
+    if (!ready) {
+      bgAudio.addEventListener('loadedmetadata', () => {
+        if (token !== bgToken) return;
+        bgAudio.addEventListener('seeked', unmute, { once: true });
+        try { bgAudio.currentTime = target(); } catch (e) { unmute(); }
+      }, { once: true });
+      setTimeout(unmute, 2500); // 念のため
+    }
+    bgAudio.play().then(() => {
+      if (token !== bgToken || !document.hidden) { bgAudio.pause(); bgAudio.muted = false; return; } // 引き継ぎ完了前に復帰した場合は元のまま
+      bgActive = true; audioEl.pause(); setMediaSessionState();
+    }).catch(e => { bgAudio.muted = false; console.log('background handoff failed:', e); });
   }
+  // [変更] 曲が読み込まれたら予備プレーヤーにも同じ曲を先に読み込ませておく
+  audioEl.addEventListener('loadedmetadata', () => {
+    if (!IS_IOS || bgActive || !bgAudio.paused) return;
+    const src = audioEl.currentSrc || audioEl.src;
+    if (src && bgAudio.src !== src) { bgAudio.src = src; try { bgAudio.load(); } catch (e) {} }
+  });
   function endBgPlayback() {
     bgActive = false;
     const t = bgAudio.currentTime, ended = bgAudio.ended, playing = !bgAudio.paused && !ended;
-    bgAudio.pause();
+    bgAudio.pause(); bgAudio.muted = false; // [変更]
     if (eqCtx && eqCtx.state !== 'running') eqCtx.resume().catch(() => {});
     try { audioEl.currentTime = t; } catch (e) {}
     if (playing) audioEl.play().then(() => updatePlayState(true)).catch(() => updatePlayState(false));
@@ -4111,6 +4130,16 @@
   }
   // [変更] バックグラウンド再生（ここまで）
 
+
+  // [変更] 予備プレーヤーが画面表示中も鳴り続けている（EQ・カラオケが効かない）状態を自動で解消
+  function recoverForeground() {
+    if (document.hidden) return;
+    if (bgActive) endBgPlayback();
+    else if (!bgAudio.paused && !bgAudio.muted) { bgToken++; bgAudio.pause(); }
+  }
+  setInterval(recoverForeground, 1500);
+  ['btn-karaoke', 'btn-eq-reset'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('click', () => { recoverForeground(); wakeAudio(); }, true); });
+  document.querySelectorAll('.eq-preset-btn').forEach(el => el.addEventListener('click', () => { recoverForeground(); wakeAudio(); }, true));
 
   // [変更] 連続再生（ここから）：曲が終わったら、いま一覧に表示されている曲（ジャンル・Side の絞り込み後）の範囲で次の曲へ
   let contMode = null;        // null / 'seq'（順番） / 'rnd'（ランダム）
